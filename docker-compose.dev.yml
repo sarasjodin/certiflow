@@ -1,0 +1,44 @@
+services:
+  certiflow-app-dev:
+    build:
+      context: ./CertiFlowApp
+    container_name: certiflow-app-dev
+    restart: unless-stopped
+    depends_on:
+      - db-dev
+    networks:
+      - web
+      - certiflow_internal_dev
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.certiflow-dev.rule=Host(`dev-certiflow.sarasjodin.se`)"
+      - "traefik.http.routers.certiflow-dev.entrypoints=websecure"
+      - "traefik.http.routers.certiflow-dev.tls=true"
+      - "traefik.http.routers.certiflow-dev.tls.certresolver=myresolver"
+      - "traefik.http.services.certiflow-dev.loadbalancer.server.port=8080"
+    environment:
+      APP_ENVIRONMENTAL_LABEL: "Dev"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    volumes:
+      - certiflow_dev_dataprotection_keys:/root/.aspnet/DataProtection-Keys
+
+  db-dev:
+    image: postgres:16
+    container_name: certiflow-db-dev
+    restart: unless-stopped
+    env_file:
+      - .env.dev
+    volumes:
+      - ./postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - certiflow_internal_dev
+
+networks:
+  web:
+    external: true
+  certiflow_internal_dev:
+    driver: bridge
+
+volumes:
+  certiflow_dev_dataprotection_keys:

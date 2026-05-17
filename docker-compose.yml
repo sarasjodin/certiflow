@@ -17,6 +17,11 @@ services:
       - "traefik.http.routers.certiflow.tls=true"
       - "traefik.http.routers.certiflow.tls.certresolver=myresolver"
       - "traefik.http.services.certiflow.loadbalancer.server.port=8080"
+    environment:
+      APP_ENVIRONMENTAL_LABEL: "Prod"
+      ASPNETCORE_ENVIRONMENT: "Production"
+    volumes:
+      - certiflow_dataprotection_keys:/root/.aspnet/DataProtection-Keys
 
   db:
     image: postgres:16
@@ -34,3 +39,6 @@ networks:
     external: true
   certiflow_internal:
     driver: bridge
+
+volumes:
+  certiflow_dataprotection_keys:

@@ -1,8 +1,17 @@
-using CertiFlowApp.Components;
+﻿using CertiFlowApp.Components;
+using CertiFlowApp.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// Database
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// UI/services
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
