@@ -20,7 +20,9 @@ services:
     environment:
       APP_ENVIRONMENTAL_LABEL: "Dev"
       ASPNETCORE_ENVIRONMENT: "Development"
-  
+    volumes:
+      - certiflow_dev_dataprotection_keys:/root/.aspnet/DataProtection-Keys
+
   db-dev:
     image: postgres:16
     container_name: certiflow-db-dev
@@ -37,3 +39,6 @@ networks:
     external: true
   certiflow_internal_dev:
     driver: bridge
+
+volumes:
+  certiflow_dev_dataprotection_keys:
