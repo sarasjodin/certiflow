@@ -3,12 +3,8 @@ services:
     image: postgres:16
     container_name: certiflow-local-db
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: certiflow_local_db
-      POSTGRES_USER: certiflow_local_user
-      POSTGRES_PASSWORD: local_dev_password
-      APP_ENVIRONMENTAL_LABEL: "Local"
-      ASPNETCORE_ENVIRONMENT: "Development"
+    env_file:
+      - .env.local
     ports:
       - "5433:5432"
     volumes:

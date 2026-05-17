@@ -16,8 +16,10 @@ Debug/
 .env
 .env.*
 .env.dev
+.env.prod
 .env.local
 !.env.example
+!.env.local.example
 appsettings.Development.json
 appsettings.Local.json
 secrets.json
