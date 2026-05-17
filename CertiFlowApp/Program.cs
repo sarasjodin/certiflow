@@ -7,6 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // LOGGING
 builder.Logging.ClearProviders();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Logging.SetMinimumLevel(LogLevel.Debug);
+}
+else
+{
+    builder.Logging.SetMinimumLevel(LogLevel.Information);
+}
+
 builder.Logging.AddSimpleConsole(options =>
 {
     options.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
