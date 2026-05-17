@@ -17,6 +17,9 @@ services:
       - "traefik.http.routers.certiflow.tls=true"
       - "traefik.http.routers.certiflow.tls.certresolver=myresolver"
       - "traefik.http.services.certiflow.loadbalancer.server.port=8080"
+    environment:
+      APP_ENVIRONMENTAL_LABEL: "Prod"
+      ASPNETCORE_ENVIRONMENT: "Production"
 
   db:
     image: postgres:16

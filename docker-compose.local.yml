@@ -7,10 +7,13 @@ services:
       POSTGRES_DB: certiflow_local_db
       POSTGRES_USER: certiflow_local_user
       POSTGRES_PASSWORD: local_dev_password
+      APP_ENVIRONMENTAL_LABEL: "Local"
+      ASPNETCORE_ENVIRONMENT: "Development"
     ports:
       - "5433:5432"
     volumes:
       - certiflow_local_pgdata:/var/lib/postgresql/data
+
 
 volumes:
   certiflow_local_pgdata:
