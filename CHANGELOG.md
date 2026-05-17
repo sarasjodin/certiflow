@@ -15,6 +15,21 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.2.0] - 2026-05-18
+
+### Added
+- Basic application logging
+- Global error handling
+- Secure logging
+- Environment-based log levels
+- User-friendly error page
+- Console logging with timestamps
+
+### Changed
+- Improved application stability and diagnostics
+
+---
+
 ## [0.1.0] - 2026-04-28 - 2026-05-17
 
 ### Added
