@@ -2,9 +2,27 @@
 using CertiFlowApp.Data;
 using Microsoft.EntityFrameworkCore;
 
+// BUILDER
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// LOGGING
+builder.Logging.ClearProviders();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Logging.SetMinimumLevel(LogLevel.Debug);
+}
+else
+{
+    builder.Logging.SetMinimumLevel(LogLevel.Information);
+}
+
+builder.Logging.AddSimpleConsole(options =>
+{
+    options.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
+});
+
+// SERVICES
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -15,7 +33,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// BUILD APP
 var app = builder.Build();
+var logger = app.Logger;
+logger.LogInformation("Application starting");
+logger.LogInformation(
+    "Current environment: {Environment}",
+    app.Environment.EnvironmentName);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -25,12 +49,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// MIDDLEWARE
+// Security
 app.UseHttpsRedirection();
-
-app.UseStaticFiles();
+// app.UseAuthentication();
+// app.UseAuthorization();
 app.UseAntiforgery();
 
+// Static files
+app.UseStaticFiles();
+
+// APP CONFIGURATIONS / ENDPOINTS
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+// Run app
 app.Run();
