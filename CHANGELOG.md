@@ -15,6 +15,18 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.2.1] - 2026-05-18
+
+### Added
+- Global error handling
+- User-friendly error page
+- Logging of unexpected exceptions
+
+### Changed
+- Improved application stability during runtime errors
+
+---
+
 ## [0.2.0] - 2026-05-18
 
 ### Added
