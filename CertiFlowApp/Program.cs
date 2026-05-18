@@ -1,4 +1,5 @@
-﻿using CertiFlowApp.Components;
+﻿using Microsoft.AspNetCore.Identity;
+using CertiFlowApp.Components;
 using CertiFlowApp.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,18 @@ builder.Logging.AddSimpleConsole(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Authentication & Identity
+builder.Services
+    .AddDefaultIdentity<ApplicationUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.AllowedForNewUsers = true;
+    })
+    .AddEntityFrameworkStores<AppDbContext>();
 
 // UI/services
 builder.Services.AddRazorComponents()
