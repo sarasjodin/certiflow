@@ -15,6 +15,21 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.2.2] - 2026-05-18
+
+### Added
+- ASP.NET Core Identity setup
+- Identity integration with Entity Framework Core and PostgreSQL
+- ApplicationUser entity
+- Initial Identity database migration
+- Identity tables for authentication and authorization
+
+### Security
+- Secure password hashing through ASP.NET Core Identity
+- Foundation for authentication and authorization
+
+---
+
 ## [0.2.1] - 2026-05-18
 
 ### Added
@@ -49,7 +64,7 @@ This project adheres to Semantic Versioning.
 - PostgreSQL integration med EF Core
 - Separerade Development och production miljöer
 - Traefik reverse proxy med HTTPS
-- Persistent ASP.NET Core Data Protection keys
+- Persistent ASP.NET Core Data Protection keys, to avoid problems with cookies, antiforgery tokens and authentification after container rebuilds.
 - `.env.example` mall och `README.md`
 
 ### Security
