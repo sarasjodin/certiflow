@@ -42,9 +42,14 @@ builder.Services
     })
     .AddEntityFrameworkStores<AppDbContext>();
 
+builder.Services.AddCascadingAuthenticationState();
+
 // UI/services
+builder.Services.AddRazorPages();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
 
 // BUILD APP
 var app = builder.Build();
@@ -76,6 +81,17 @@ app.UseStaticFiles();
 // APP CONFIGURATIONS / ENDPOINTS
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapRazorPages();
+
+// Seed identity data, create default admin user if not exists
+await IdentitySeeder.SeedAsync(app.Services, builder.Configuration);
+
+app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+    return Results.Redirect("/");
+});
 
 // Run app
 app.Run();
