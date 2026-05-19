@@ -78,6 +78,74 @@ APP_ENVIRONMENTAL_LABEL: "Production"
 
 ---
 
+## Database environments
+
+The project uses separate PostgreSQL databases for:
+
+- Local development
+- VPS Development environment
+- VPS Production environment
+
+### Local database
+
+Started via:
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
+
+Access PostgreSQL:
+```bash
+docker exec -it certiflow-local-db \
+psql -U certiflow_local_user -d certiflow_local_db
+```
+
+### Development database (VPS)
+
+Started via:
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+Access PostgreSQL:
+```bash
+docker exec -it certiflow-db-dev \
+psql -U <dev_user> -d <dev_database>
+```
+
+### Production database (VPS)
+
+Started via:
+```bash
+docker compose -f docker-compose.yml up -d
+```
+Access PostgreSQL:
+```bash
+docker exec -it certiflow-db \
+psql -U <prod_user> -d <prod_database>
+```
+
+---
+
+## Authentication and Identity
+
+CertiFlow uses ASP.NET Core Identity with Entity Framework Core and PostgreSQL.
+
+Passwords are stored using ASP.NET Core Identity password hashing.
+The application does not implement custom password hashing or custom authentication logic.
+
+Account lockout is enabled for repeated failed login attempts:
+
+- Maximum failed attempts: 5
+- Lockout duration: 5 minutes
+- Lockout enabled for new users
+
+Administrative pages require authentication using ASP.NET Core authorization.
+
+Scaffolded Identity UI is only used for the pages that require customization.
+The project still uses ASP.NET Core Identity for password hashing, cookies, lockout, and authentication.
+
+---
+
 ## Deployment
 
 ### Development

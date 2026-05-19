@@ -1,4 +1,5 @@
-﻿using CertiFlowApp.Components;
+﻿using Microsoft.AspNetCore.Identity;
+using CertiFlowApp.Components;
 using CertiFlowApp.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,13 +26,42 @@ builder.Logging.AddSimpleConsole(options =>
 // SERVICES
 
 // Database
+var connectionString =
+    $"Host={builder.Configuration["POSTGRES_HOST"]};" +
+    $"Port={builder.Configuration["POSTGRES_PORT"]};" +
+    $"Database={builder.Configuration["POSTGRES_DB"]};" +
+    $"Username={builder.Configuration["POSTGRES_USER"]};" +
+    $"Password={builder.Configuration["POSTGRES_PASSWORD"]}";
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
+
+// Authentication & Identity
+builder.Services
+    .AddDefaultIdentity<ApplicationUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount =
+    builder.Environment.IsProduction();
+
+        options.Password.RequiredLength = 6;
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.AllowedForNewUsers = true;
+    })
+    .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddCascadingAuthenticationState();
 
 // UI/services
+builder.Services.AddRazorPages();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
 
 // BUILD APP
 var app = builder.Build();
@@ -53,16 +83,32 @@ if (!app.Environment.IsDevelopment())
 // MIDDLEWARE
 // Security
 app.UseHttpsRedirection();
-// app.UseAuthentication();
-// app.UseAuthorization();
-app.UseAntiforgery();
 
-// Static files
 app.UseStaticFiles();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseAntiforgery();
 
 // APP CONFIGURATIONS / ENDPOINTS
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapRazorPages();
+
+// Seed identity data, create default admin user if not exists
+if (app.Environment.IsDevelopment())
+{
+    // Seed development admin user only in Development
+    await IdentitySeeder.SeedAsync(app.Services, builder.Configuration);
+}
+
+app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+    return Results.Redirect("/");
+});
 
 // Run app
 app.Run();
