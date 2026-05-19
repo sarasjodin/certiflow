@@ -9,8 +9,30 @@ This project adheres to Semantic Versioning.
 ## [Unreleased]
 
 ### Planned
-- Authentication (ongoing) and authorization
+- Roles and authorization
 - Initial domain model and business-related database migration
+
+---
+
+## [0.2.4] - 2026-05-19
+
+### Added
+- ASP.NET Core Identity account lockout configuration
+- Lockout verification using PostgreSQL and Identity UserManager
+- Protected admin page using ASP.NET Core authorization
+- Scaffolded Identity Login and Lockout pages
+- Authentication and Identity documentation in README.md
+
+### Changed
+- Enabled lockout on failed login attempts
+- Enabled ASP.NET Core authentication and authorization middleware
+- Restricted default admin user seeding to Development environment only
+
+### Security
+- Password hashing using ASP.NET Core Identity
+- Account lockout after repeated failed login attempts
+- Authentication required for administrative pages
+- Established ASP.NET Core Identity security mechanisms used instead of custom authentication logic
 
 ---
 

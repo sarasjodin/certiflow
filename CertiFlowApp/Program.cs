@@ -34,7 +34,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services
     .AddDefaultIdentity<ApplicationUser>(options =>
     {
-        options.SignIn.RequireConfirmedAccount = false;
+        options.SignIn.RequireConfirmedAccount =
+    builder.Environment.IsProduction();
+
+        options.Password.RequiredLength = 6;
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
 
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         options.Lockout.MaxFailedAccessAttempts = 5;
@@ -71,12 +77,13 @@ if (!app.Environment.IsDevelopment())
 // MIDDLEWARE
 // Security
 app.UseHttpsRedirection();
-// app.UseAuthentication();
-// app.UseAuthorization();
-app.UseAntiforgery();
 
-// Static files
 app.UseStaticFiles();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseAntiforgery();
 
 // APP CONFIGURATIONS / ENDPOINTS
 app.MapRazorComponents<App>()
@@ -85,7 +92,11 @@ app.MapRazorComponents<App>()
 app.MapRazorPages();
 
 // Seed identity data, create default admin user if not exists
-await IdentitySeeder.SeedAsync(app.Services, builder.Configuration);
+if (app.Environment.IsDevelopment())
+{
+    // Seed development admin user only in Development
+    await IdentitySeeder.SeedAsync(app.Services, builder.Configuration);
+}
 
 app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
 {
