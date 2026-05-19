@@ -20,6 +20,8 @@ services:
     environment:
       APP_ENVIRONMENTAL_LABEL: "Prod"
       ASPNETCORE_ENVIRONMENT: "Production"
+    env_file:
+      - .env
     volumes:
       - certiflow_dataprotection_keys:/root/.aspnet/DataProtection-Keys
 
@@ -27,8 +29,6 @@ services:
     image: postgres:16
     container_name: certiflow-db
     restart: unless-stopped
-    env_file:
-      - .env
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
