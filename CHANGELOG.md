@@ -14,6 +14,37 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.2.5] - 2026-05-19
+
+### Added
+- Basic ASP.NET Core Identity security settings
+- Protected admin page requiring authentication
+- Brief documentation of the selected Identity solution
+
+### Fixed
+- Fixed database configuration for Docker-based Development and Production environments.
+- Replaced ASP.NET Core connection string configuration with explicit PostgreSQL environment variables.
+
+### Changed
+- Updated database configuration to use:
+  - POSTGRES_HOST
+  - POSTGRES_PORT
+  - POSTGRES_DB
+  - POSTGRES_USER
+  - POSTGRES_PASSWORD
+- Standardized environment handling across local, Development, and Production environments.
+- Updated `.env.local.example` with explicit localhost and PostgreSQL port configuration.
+
+### Security
+- Password hashing handled by ASP.NET Core Identity
+- Account lockout configured for failed login attempts
+- Administrative pages protected with ASP.NET Core authorization
+- Established ASP.NET Core Identity mechanisms used instead of custom authentication logic
+- Continued using User Secrets for local development secrets
+- Continued using `.env` files for VPS Development and Production environments
+
+---
+
 ## [0.2.4] - 2026-05-19
 
 ### Added
