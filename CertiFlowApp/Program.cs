@@ -26,9 +26,15 @@ builder.Logging.AddSimpleConsole(options =>
 // SERVICES
 
 // Database
+var connectionString =
+    $"Host={builder.Configuration["POSTGRES_HOST"]};" +
+    $"Port={builder.Configuration["POSTGRES_PORT"]};" +
+    $"Database={builder.Configuration["POSTGRES_DB"]};" +
+    $"Username={builder.Configuration["POSTGRES_USER"]};" +
+    $"Password={builder.Configuration["POSTGRES_PASSWORD"]}";
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // Authentication & Identity
 builder.Services
