@@ -1,0 +1,12 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using CertiFlowApp.Data
+@inject SignInManager<ApplicationUser> SignInManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <span>Hello @User.Identity?.Name!</span>
+}
+else
+{
+    <a asp-area="Identity" asp-page="/Account/Login">Login</a>
+}

@@ -9,9 +9,17 @@ This project adheres to Semantic Versioning.
 ## [Unreleased]
 
 ### Planned
-- En första MVP measurement workflow
-- Authentication och authorization
-- En första databas-migration
+- Authentication (ongoing) and authorization
+- Initial domain model and business-related database migration
+
+---
+
+## [0.2.3] - 2026-05-19
+
+### Added
+- Login flow using ASP.NET Core Identity UI
+- Direct logout endpoint using POST
+- Temporary authentication status in the main layout in Swedish for MVP testing
 
 ---
 
@@ -60,17 +68,19 @@ This project adheres to Semantic Versioning.
 ## [0.1.0] - 2026-04-28 - 2026-05-17
 
 ### Added
-- Docker baserad dev miljö
-- PostgreSQL integration med EF Core
-- Separerade Development och production miljöer
-- Traefik reverse proxy med HTTPS
-- Persistent ASP.NET Core Data Protection keys, to avoid problems with cookies, antiforgery tokens and authentification after container rebuilds.
-- `.env.example` mall och `README.md`
+- Docker-based development environment
+- PostgreSQL integration with EF Core
+- Separate Development and Production environments
+- Traefik reverse proxy with HTTPS
+- Persistent ASP.NET Core Data Protection keys
+  to avoid issues with cookies, antiforgery tokens,
+  and authentication after container rebuilds
+- `.env.example` template and `README.md`
 
 ### Security
-- User Secrets för lokal development
-- Environment variables för deployment-miljön
+- User Secrets for local development
+- Environment variables for deployment environments
 
 ### Infrastructure
-- Separata Docker Compose filer för dev och prod
-- Separata PostgreSQL databaser för dev och prod
+- Separate Docker Compose files for Development and Production
+- Separate PostgreSQL databases for Development and Production

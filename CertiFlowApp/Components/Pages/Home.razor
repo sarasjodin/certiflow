@@ -2,6 +2,20 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@using Microsoft.AspNetCore.Components.Authorization
 
-Welcome to your new app.
+<AuthorizeView>
+    <Authorized>
+        <h1>Du har blivit inloggad</h1>
+        <p>Inloggad som: @context.User.Identity?.Name</p>
+        <form method="post" action="/logout">
+            <button type="submit">Logout</button>
+        </form>
+    </Authorized>
+
+    <NotAuthorized>
+        <h1>Du är inte inloggad</h1>
+        <p>Logga in här för att testa autentisering.</p>
+        <a href="/Identity/Account/Login">Login</a>
+    </NotAuthorized>
+</AuthorizeView>
