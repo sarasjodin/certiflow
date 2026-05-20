@@ -10,16 +10,16 @@ services:
       - web
       - certiflow_internal
     labels:
-      - "traefik.docker.network=web"
-      - "traefik.enable=true"
-      - "traefik.http.routers.certiflow.rule=Host(`certiflow.sarasjodin.se`)"
-      - "traefik.http.routers.certiflow.entrypoints=websecure"
-      - "traefik.http.routers.certiflow.tls=true"
-      - "traefik.http.routers.certiflow.tls.certresolver=myresolver"
-      - "traefik.http.services.certiflow.loadbalancer.server.port=8080"
+      - 'traefik.docker.network=web'
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.certiflow.rule=Host(`certiflow.sarasjodin.se`)'
+      - 'traefik.http.routers.certiflow.entrypoints=websecure'
+      - 'traefik.http.routers.certiflow.tls=true'
+      - 'traefik.http.routers.certiflow.tls.certresolver=myresolver'
+      - 'traefik.http.services.certiflow.loadbalancer.server.port=8080'
     environment:
-      APP_ENVIRONMENTAL_LABEL: "Prod"
-      ASPNETCORE_ENVIRONMENT: "Production"
+      APP_ENVIRONMENTAL_LABEL: 'Prod'
+      ASPNETCORE_ENVIRONMENT: 'Production'
     env_file:
       - .env
     volumes:

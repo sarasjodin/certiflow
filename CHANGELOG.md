@@ -14,6 +14,14 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.2.6] - 2026-05-20
+
+### Fixed
+
+- Sync env_file config between `docker-compose.yml` and `docker-compose.dev.yml`
+
+---
+
 ## [0.2.5] - 2026-05-19
 
 ### Added
@@ -137,3 +145,14 @@ This project adheres to Semantic Versioning.
 ### Infrastructure
 - Separate Docker Compose files for Development and Production
 - Separate PostgreSQL databases for Development and Production
+
+
+## Legend
+
+- **Added**: new features or components
+- **Changed**: updates to existing behavior
+- **Deprecated**: soon-to-be removed features
+- **Removed**: deprecated features now gone
+- **Fixed**: bug fixes
+- **Security**: security-related fixes or enhancements
+- **Notes**: related comments, limitations, or clarifications
