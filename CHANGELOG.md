@@ -14,6 +14,22 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.2.7] - 2026-05-20
+
+### Added
+- Added Identity role seeding for Operator, Verifier, Approver, SystemAdmin and Client
+- Added centralized ApplicationRoles constants for role management
+- Added development test users with predefined roles
+- Added support for users with multiple roles
+- Added environment-based seed email domains for local and dev environments
+
+### Fixed
+- Fixed Identity role registration by enabling AddRoles<IdentityRole>()
+- Fixed startup order so role seeding runs before user seeding
+- Fixed development authorization seed setup for ASP.NET Core Identity
+
+---
+
 ## [0.2.6] - 2026-05-20
 
 ### Fixed

@@ -99,6 +99,13 @@ app.MapRazorComponents<App>()
 
 app.MapRazorPages();
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    await RoleSeeder.SeedAsync(roleManager);
+}
+
 // Seed identity data, create default admin user if not exists
 if (app.Environment.IsDevelopment())
 {
@@ -111,13 +118,6 @@ app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
     await signInManager.SignOutAsync();
     return Results.Redirect("/");
 });
-
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-    await RoleSeeder.SeedAsync(roleManager);
-}
 
 // Run app
 app.Run();
