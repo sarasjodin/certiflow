@@ -2,6 +2,7 @@
 using CertiFlowApp.Components;
 using CertiFlowApp.Data;
 using Microsoft.EntityFrameworkCore;
+using CertiFlow.Web.Infrastructure.Identity;
 
 // BUILDER
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +53,7 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.AllowedForNewUsers = true;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddCascadingAuthenticationState();
@@ -96,6 +98,13 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.MapRazorPages();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    await RoleSeeder.SeedAsync(roleManager);
+}
 
 // Seed identity data, create default admin user if not exists
 if (app.Environment.IsDevelopment())
