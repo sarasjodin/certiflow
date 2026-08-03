@@ -23,8 +23,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     // Applies Identity configuration
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.HasDefaultSchema("certiflowapp");
-
         base.OnModelCreating(builder);
 
         builder.ApplyConfigurationsFromAssembly(

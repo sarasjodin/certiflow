@@ -1,5 +1,4 @@
 ﻿using CertiFlowApp.Models;
-using CertiFlowApp.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -23,7 +22,6 @@ namespace CertiFlowApp.Data.Configurations
                 .IsRequired();
 
             builder.Property(job => job.Status)
-                .HasDefaultValue(JobStatus.Draft)
                 .IsRequired();
 
             builder.Property(job => job.CertificateNumber)

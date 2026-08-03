@@ -1,5 +1,4 @@
 ﻿using CertiFlowApp.Models;
-using CertiFlowApp.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -22,7 +21,6 @@ public class MeasurementConfiguration
             .IsRequired();
 
         builder.Property(measurement => measurement.Status)
-            .HasDefaultValue(MeasurementStatus.Draft)
             .IsRequired();
 
         builder.Property(measurement => measurement.MeasuredAtUtc)

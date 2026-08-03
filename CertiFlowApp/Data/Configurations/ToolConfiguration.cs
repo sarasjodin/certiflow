@@ -1,8 +1,6 @@
 ﻿using CertiFlowApp.Models;
-using CertiFlowApp.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CertiFlowApp.Data.Configurations;
 

@@ -1,5 +1,4 @@
 ﻿using CertiFlowApp.Models;
-using CertiFlowApp.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -21,7 +20,6 @@ public class DeviationConfiguration
             .IsRequired();
 
         builder.Property(deviation => deviation.Status)
-            .HasDefaultValue(DeviationStatus.Open)
             .IsRequired();
 
         // Prevents deleting the job while it is referenced by a deviation
