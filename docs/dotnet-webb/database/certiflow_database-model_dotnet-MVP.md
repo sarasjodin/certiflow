@@ -194,6 +194,26 @@ Stores critical business events.
 - Resolved
 - Closed
 
+## AuditAction
+
+- Create
+- Update
+- Submit
+- Verify
+- Approve
+- Delete
+
+## CalibrationStatus
+
+- Valid
+- Expired
+
+## Severity
+
+- Minor
+- Major
+- Critical
+
 ---
 
 # 6. Business Rules
