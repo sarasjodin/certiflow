@@ -1,6 +1,7 @@
 ﻿using CertiFlow.Web.Infrastructure.Identity;
 using CertiFlowApp.Components;
 using CertiFlowApp.Data;
+using CertiFlowApp.Features.Customers;
 using CertiFlowApp.Services.CurrentUser;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +64,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<CustomerService>();
 
 // UI
 builder.Services.AddRazorPages();

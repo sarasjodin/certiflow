@@ -1,0 +1,94 @@
+﻿@page "/customers/{Id:guid}"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Customers
+@using CertiFlowApp.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject CustomerService CustomerService
+
+<PageTitle>Customer details</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading customer...</p>
+}
+else if (_customer is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Customer not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/customers">
+        Back to customers
+    </a>
+}
+else
+{
+    <h1>@_customer.Name</h1>
+
+    <dl class="row">
+        <dt class="col-sm-3">Organization number</dt>
+        <dd class="col-sm-9">@_customer.OrganizationNumber</dd>
+
+        <dt class="col-sm-3">Created</dt>
+        <dd class="col-sm-9">
+            @_customer.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+        </dd>
+
+        <dt class="col-sm-3">Created by</dt>
+        <dd class="col-sm-9">@_customer.CreatedByUserId</dd>
+
+        <dt class="col-sm-3">Last updated</dt>
+        <dd class="col-sm-9">
+            @if (_customer.UpdatedAtUtc.HasValue)
+            {
+                <span>
+                    @_customer.UpdatedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                </span>
+            }
+            else
+            {
+                <span>Not updated</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Jobs</dt>
+        <dd class="col-sm-9">@_customer.Jobs.Count</dd>
+    </dl>
+
+    <a class="btn btn-primary"
+       href="@($"/customers/{_customer.Id}/edit")">
+        Edit
+    </a>
+
+    <a class="btn btn-danger"
+       href="@($"/customers/{_customer.Id}/delete")">
+        Delete
+    </a>
+
+    <a class="btn btn-secondary" href="/customers">
+        Back to customers
+    </a>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Customer? _customer;
+    private bool _isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _customer = await CustomerService.GetByIdAsync(Id);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}
