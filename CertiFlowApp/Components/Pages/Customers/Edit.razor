@@ -1,0 +1,137 @@
+﻿@page "/customers/{Id:guid}/edit"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Customers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject CustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit customer</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading customer...</p>
+}
+else if (_form is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Customer not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/customers">
+        Back to customers
+    </a>
+}
+else
+{
+    <h1>Edit customer</h1>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
+        </div>
+    }
+
+    <EditForm Model="_form"
+              OnValidSubmit="UpdateCustomerAsync"
+              FormName="edit-customer">
+
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="customer-name" class="form-label">
+                Customer name
+            </label>
+
+            <InputText id="customer-name"
+                       class="form-control"
+                       @bind-Value="_form.Name" />
+
+            <ValidationMessage For="() => _form.Name" />
+        </div>
+
+        <div class="mb-3">
+            <label for="organization-number" class="form-label">
+                Organization number
+            </label>
+
+            <InputText id="organization-number"
+                       class="form-control"
+                       @bind-Value="_form.OrganizationNumber" />
+
+            <ValidationMessage For="() => _form.OrganizationNumber" />
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@_isSaving">
+            @(_isSaving ? "Saving..." : "Save changes")
+        </button>
+
+        <a class="btn btn-secondary"
+           href="@($"/customers/{Id}")">
+            Cancel
+        </a>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private EditCustomerForm? _form;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _form = await CustomerService.GetEditFormAsync(Id);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task UpdateCustomerAsync()
+    {
+        if (_form is null)
+        {
+            return;
+        }
+
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var updated = await CustomerService.UpdateAsync(_form);
+
+            if (!updated)
+            {
+                _errorMessage = "Customer not found.";
+                return;
+            }
+
+            NavigationManager.NavigateTo($"/customers/{Id}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The customer could not be updated.";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}

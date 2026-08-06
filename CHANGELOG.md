@@ -14,6 +14,23 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.3.0] - 2026-08-03
+
+### Added
+- Added initial MVP domain model for Customers, Jobs, Measurements, Tools, Deviations and AuditLogs
+- Added shared AuditableEntity base class for audit fields
+- Added business-related enums for jobs, measurements, deviations, audit actions and tool calibration
+- Added separate EF Core configuration classes for all domain entities using IEntityTypeConfiguration
+- Added initial MVP database migration (AddMvpDomainModel)
+- Added project .editorconfig for consistent code formatting and automatic removal of unused using directives
+
+### Changed
+- Updated AppDbContext to register domain entities
+- Updated MVP database documentation to match the implemented domain model
+
+### TEsted
+- Verified successful migration against the local PostgreSQL database
+
 ## [0.2.7] - 2026-05-20
 
 ### Added

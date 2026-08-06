@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using CertiFlow.Web.Infrastructure.Identity;
 using CertiFlowApp.Components;
 using CertiFlowApp.Data;
+using CertiFlowApp.Features.Customers;
+using CertiFlowApp.Services.CurrentUser;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using CertiFlow.Web.Infrastructure.Identity;
 
 // BUILDER
 var builder = WebApplication.CreateBuilder(args);
@@ -58,7 +60,13 @@ builder.Services
 
 builder.Services.AddCascadingAuthenticationState();
 
-// UI/services
+// Application services
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<CustomerService>();
+
+// UI
 builder.Services.AddRazorPages();
 
 builder.Services.AddRazorComponents()
@@ -93,12 +101,13 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 
-// APP CONFIGURATIONS / ENDPOINTS
+// APP CONFIGURATIONS
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.MapRazorPages();
 
+// DATA INITIALIZATION
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -113,11 +122,13 @@ if (app.Environment.IsDevelopment())
     await IdentitySeeder.SeedAsync(app.Services, builder.Configuration);
 }
 
+// ENDPOINTS
 app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
 {
     await signInManager.SignOutAsync();
     return Results.Redirect("/");
 });
 
-// Run app
+
+// RUN
 app.Run();
