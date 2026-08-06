@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using CertiFlowApp.Models.Enums;
+﻿using CertiFlowApp.Models.Enums;
 
 namespace CertiFlowApp.Models;
 

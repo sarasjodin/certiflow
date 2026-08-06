@@ -1,0 +1,114 @@
+﻿@page "/tools/{Id:guid}"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Tools
+@using CertiFlowApp.Services.DateTime
+@using CertiFlowApp.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ToolService ToolService
+
+<PageTitle>Tool details</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading tool...</p>
+}
+else if (_tool is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Tool not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/tools">
+        Back to tools
+    </a>
+}
+else
+{
+    <h1>@_tool.Name</h1>
+
+    <dl class="row">
+        <dt class="col-sm-3">Serial number</dt>
+        <dd class="col-sm-9">@_tool.SerialNumber</dd>
+
+        <dt class="col-sm-3">Tool type</dt>
+        <dd class="col-sm-9">@_tool.ToolType</dd>
+
+        <dt class="col-sm-3">Calibration status</dt>
+        <dd class="col-sm-9">@_tool.CalibrationStatus</dd>
+
+        <dt class="col-sm-3">Calibration valid until</dt>
+        <dd class="col-sm-9">
+            @if (_tool.CalibrationValidUntil.HasValue)
+            {
+                @_tool.CalibrationValidUntil.Value.ToString("yyyy-MM-dd")
+            }
+            else
+            {
+                <span>Not specified</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Is active</dt>
+        <dd class="col-sm-9">@_tool.IsActive</dd>
+     
+        <dt class="col-sm-3">Created</dt>
+        <dd class="col-sm-9">
+            @ApplicationDateTime.Format(_tool.CreatedAtUtc)
+        </dd>
+
+        <dt class="col-sm-3">Created by</dt>
+        <dd class="col-sm-9">@_tool.CreatedByUserId</dd>
+
+        <dt class="col-sm-3">Last updated</dt>
+        <dd class="col-sm-9">
+            @if (_tool.UpdatedAtUtc.HasValue)
+            {
+                @ApplicationDateTime.Format(_tool.UpdatedAtUtc.Value)
+            }
+            else
+            {
+                <span>Not updated</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Measurements</dt>
+        <dd class="col-sm-9">@_tool.Measurements.Count</dd>
+    </dl>
+
+    <a class="btn btn-primary"
+       href="@($"/tools/{_tool.Id}/edit")">
+        Edit
+    </a>
+
+    <a class="btn btn-danger"
+       href="@($"/tools/{_tool.Id}/delete")">
+        Delete
+    </a>
+
+    <a class="btn btn-secondary" href="/tools">
+        Back to tools
+    </a>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Tool? _tool;
+    private bool _isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _tool = await ToolService.GetByIdAsync(Id);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

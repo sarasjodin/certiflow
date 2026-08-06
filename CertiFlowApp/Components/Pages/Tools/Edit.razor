@@ -1,0 +1,183 @@
+﻿@page "/tools/{Id:guid}/edit"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Tools
+@using CertiFlowApp.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ToolService ToolService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit tool</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading tool...</p>
+}
+else if (_form is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Tool not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/tools">
+        Back to tools
+    </a>
+}
+else
+{
+    <h1>Edit tool</h1>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
+        </div>
+    }
+
+    <EditForm Model="_form"
+              OnValidSubmit="UpdateToolAsync"
+              FormName="edit-tool">
+
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="tool-name" class="form-label">
+                Tool name
+            </label>
+
+            <InputText id="tool-name"
+                       class="form-control"
+                       @bind-Value="_form.Name" />
+
+            <ValidationMessage For="() => _form.Name" />
+        </div>
+
+        <div class="mb-3">
+            <label for="tool-serial-number" class="form-label">
+                Serial number
+            </label>
+
+            <InputText id="tool-serial-number"
+                       class="form-control"
+                       @bind-Value="_form.SerialNumber" />
+
+            <ValidationMessage For="() => _form.SerialNumber" />
+        </div>
+
+        <div class="mb-3">
+            <label for="tool-type" class="form-label">
+                Tool type
+            </label>
+
+            <InputText id="tool-type"
+                       class="form-control"
+                       @bind-Value="_form.ToolType" />
+
+            <ValidationMessage For="() => _form.ToolType" />
+        </div>
+
+        <div class="mb-3">
+            <label for="tool-calibration-status" class="form-label">
+                Calibration status
+            </label>
+
+            <InputSelect id="tool-calibration-status"
+                         class="form-select"
+                         @bind-Value="_form.CalibrationStatus">
+
+                @foreach (var status in Enum.GetValues<CalibrationStatus>())
+                {
+                    <option value="@status">
+                        @status
+                    </option>
+                }
+            </InputSelect>
+
+            <ValidationMessage For="() => _form.CalibrationStatus" />
+        </div>
+
+        <div class="mb-3">
+            <label for="tool-calibration-valid-until"
+                   class="form-label">
+                Calibration valid until
+            </label>
+
+            <InputDate id="tool-calibration-valid-until"
+                       class="form-control"
+                       @bind-Value="_form.CalibrationValidUntil" />
+
+            <ValidationMessage For="() => _form.CalibrationValidUntil" />
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@_isSaving">
+            @(_isSaving ? "Saving..." : "Save changes")
+        </button>
+
+        <a class="btn btn-secondary"
+           href="@($"/tools/{Id}")">
+            Cancel
+        </a>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private EditToolForm? _form;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _form = await ToolService.GetEditFormAsync(Id);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task UpdateToolAsync()
+    {
+        if (_form is null)
+        {
+            return;
+        }
+
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var updated = await ToolService.UpdateAsync(_form);
+
+            if (!updated)
+            {
+                _errorMessage = "Tool not found.";
+                return;
+            }
+
+            NavigationManager.NavigateTo($"/tools/{Id}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The tool could not be updated.";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}

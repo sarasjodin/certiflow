@@ -15,6 +15,7 @@ namespace CertiFlowApp.Features.Customers
             _dbContext = dbContext;
         }
 
+        // Read-only queries 
         // Returns all customers without EF Core change tracking
         // .AsNoTracking() to avoid unnecessary EF Core change tracking -> for all GetAllAsync(),GetByIdAsync() and GetEditFormAsync()
         public async Task<List<Customer>> GetAllAsync(

@@ -68,10 +68,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             // Set creation information for new entities.
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.CreatedAtUtc =
-                    entry.Entity.CreatedAtUtc == default
-                        ? utcNow
-                        : entry.Entity.CreatedAtUtc;
+                if (entry.Entity.CreatedAtUtc == default)
+                {
+                    entry.Entity.CreatedAtUtc = utcNow;
+                }
 
                 if (string.IsNullOrWhiteSpace(entry.Entity.CreatedByUserId))
                 {
@@ -94,7 +94,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
                 if (string.IsNullOrWhiteSpace(userId))
                 {
                     throw new InvalidOperationException(
-                        "An authenticated user is required to update audited entities.");
+                        "UpdatedByUserId must be set when no authenticated user is available.");
                 }
 
                 entry.Entity.UpdatedAtUtc = utcNow;
