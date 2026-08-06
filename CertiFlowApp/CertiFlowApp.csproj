@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Folder Include="Components\Pages\Shared\" />
+    <Folder Include="Features\Common\" />
   </ItemGroup>
 
 </Project>

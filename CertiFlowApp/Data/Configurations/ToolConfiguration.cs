@@ -29,6 +29,13 @@ public class ToolConfiguration : IEntityTypeConfiguration<Tool>
         builder.Property(tool => tool.CalibrationStatus)
             .IsRequired();
 
+        // Updated since calibration expires on a calendar date not at a specific time
+        // Column becomes nullable since property:
+        // public DateOnly? CalibrationValidUntil { get; set; }
+        // is set. Therefore .IsRequired(); is not needed.
+        builder.Property(tool => tool.CalibrationValidUntil)
+            .HasColumnType("date");
+
         builder.Property(tool => tool.IsActive)
             .HasDefaultValue(true)
             .IsRequired();

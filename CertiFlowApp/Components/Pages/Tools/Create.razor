@@ -1,0 +1,134 @@
+﻿@page "/tools/create"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Tools
+@using CertiFlowApp.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ToolService ToolService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create tool</PageTitle>
+
+<h1>Create tool</h1>
+
+@if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+
+<EditForm Model="_form"
+          OnValidSubmit="CreateToolAsync"
+          FormName="create-tool">
+
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="tool-name" class="form-label">
+            Tool name
+        </label>
+
+        <InputText id="tool-name"
+                   class="form-control"
+                   @bind-Value="_form.Name" />
+
+        <ValidationMessage For="() => _form.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="tool-serial-number" class="form-label">
+            Serial number
+        </label>
+
+        <InputText id="tool-serial-number"
+                   class="form-control"
+                   @bind-Value="_form.SerialNumber" />
+
+        <ValidationMessage For="() => _form.SerialNumber" />
+    </div>
+
+    <div class="mb-3">
+        <label for="tool-type" class="form-label">
+            Tool type
+        </label>
+
+        <InputText id="tool-type"
+                   class="form-control"
+                   @bind-Value="_form.ToolType" />
+
+        <ValidationMessage For="() => _form.ToolType" />
+    </div>
+
+    <div class="mb-3">
+        <label for="tool-calibration-status" class="form-label">
+            Calibration status
+        </label>
+
+        <InputSelect id="tool-calibration-status"
+                     class="form-select"
+                     @bind-Value="_form.CalibrationStatus">
+            @foreach (var status in Enum.GetValues<CalibrationStatus>())
+            {
+                <option value="@status">@status</option>
+            }
+        </InputSelect>
+
+        <ValidationMessage For="() => _form.CalibrationStatus" />
+    </div>
+
+    <div class="mb-3">
+        <label for="tool-calibration-valid-until"
+               class="form-label">
+            Calibration valid until
+        </label>
+
+        <InputDate id="tool-calibration-valid-until"
+                   class="form-control"
+                   @bind-Value="_form.CalibrationValidUntil" />
+
+        <ValidationMessage For="() => _form.CalibrationValidUntil" />
+    </div>
+
+    <button type="submit"
+            class="btn btn-primary"
+            disabled="@_isSaving">
+        @(_isSaving ? "Saving..." : "Create")
+    </button>
+
+    <a class="btn btn-secondary" href="/tools">
+        Cancel
+    </a>
+</EditForm>
+
+@code {
+    private readonly CreateToolForm _form = new();
+    private bool _isSaving;
+    private string? _errorMessage;
+
+    private async Task CreateToolAsync()
+    {
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var tool = await ToolService.CreateAsync(_form);
+
+            NavigationManager.NavigateTo(
+                $"/tools/{tool.Id}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The tool could not be created.";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}

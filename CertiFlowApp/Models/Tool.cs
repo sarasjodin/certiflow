@@ -16,8 +16,8 @@ public class Tool : AuditableEntity
     // Current calibration status eg., Valid, Expired 
     public CalibrationStatus CalibrationStatus { get; set; }
 
-    // Calibration expiry date
-    public DateTimeOffset? CalibrationValidUntilUtc { get; set; }
+    // Last calendar date on which the calibration is valid
+    public DateOnly? CalibrationValidUntil { get; set; }
 
     // Indicates if tool can be used
     public bool IsActive { get; set; } = true;

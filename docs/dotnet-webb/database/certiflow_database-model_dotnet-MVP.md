@@ -126,7 +126,7 @@ Represents a measuring instrument.
 | SerialNumber             | VARCHAR(100) | UNIQUE       |
 | ToolType                 | VARCHAR(100) | Required     |
 | CalibrationStatus        | INT          | Enum         |
-| CalibrationValidUntilUtc | TIMESTAMPTZ  | Nullable     |
+| CalibrationValidUntil    | DATE         | Nullable     |
 | IsActive                 | BOOLEAN      | Default TRUE |
 | CreatedByUserId          | TEXT         | FK           |
 | CreatedAtUtc             | TIMESTAMPTZ  | Audit        |

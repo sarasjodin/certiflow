@@ -1,0 +1,97 @@
+﻿@page "/tools"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Tools
+@using CertiFlowApp.Services.DateTime
+@using CertiFlowApp.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ToolService ToolService
+
+    <PageTitle>Tools</PageTitle>
+
+    <h1>Tools</h1>
+
+<p>
+        <a class="btn btn-primary" href="/tools/create">
+            Create tool
+        </a>
+    </p>
+
+    @if (_isLoading)
+    {
+        <p>Loading tools...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
+        </div>
+    }
+    else if (_tools.Count == 0)
+    {
+        <div class="alert alert-info" role="alert">
+            No tools have been created.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Serial number</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var tool in _tools)
+                {
+                    <tr>
+                        <td>@tool.Name</td>
+                        <td>@tool.SerialNumber</td>
+                        <td>@ApplicationDateTime.Format(tool.CreatedAtUtc)</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary"
+                               href="@($"/tools/{tool.Id}")">
+                                Details
+                            </a>
+
+                            <a class="btn btn-sm btn-outline-secondary"
+                               href="@($"/tools/{tool.Id}/edit")">
+                                Edit
+                            </a>
+
+                            <a class="btn btn-sm btn-outline-danger"
+                               href="@($"/tools/{tool.Id}/delete")">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+@code {
+    private List<Tool> _tools = [];
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _tools = await ToolService.GetAllAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The tools could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}
