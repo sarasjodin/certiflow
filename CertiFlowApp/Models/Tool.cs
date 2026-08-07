@@ -1,6 +1,4 @@
-﻿using CertiFlowApp.Models.Enums;
-
-namespace CertiFlowApp.Models;
+﻿namespace CertiFlowApp.Models;
 
 // Represents a measuring instrument
 public class Tool : AuditableEntity
@@ -12,9 +10,6 @@ public class Tool : AuditableEntity
     public string SerialNumber { get; set; } = string.Empty;
 
     public string ToolType { get; set; } = string.Empty;
-
-    // Current calibration status eg., Valid, Expired 
-    public CalibrationStatus CalibrationStatus { get; set; }
 
     // Last calendar date on which the calibration is valid
     public DateOnly? CalibrationValidUntil { get; set; }

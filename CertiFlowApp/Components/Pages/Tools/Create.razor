@@ -61,23 +61,6 @@
     </div>
 
     <div class="mb-3">
-        <label for="tool-calibration-status" class="form-label">
-            Calibration status
-        </label>
-
-        <InputSelect id="tool-calibration-status"
-                     class="form-select"
-                     @bind-Value="_form.CalibrationStatus">
-            @foreach (var status in Enum.GetValues<CalibrationStatus>())
-            {
-                <option value="@status">@status</option>
-            }
-        </InputSelect>
-
-        <ValidationMessage For="() => _form.CalibrationStatus" />
-    </div>
-
-    <div class="mb-3">
         <label for="tool-calibration-valid-until"
                class="form-label">
             Calibration valid until

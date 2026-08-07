@@ -7,7 +7,6 @@ namespace CertiFlowApp.Data;
 
 public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
-
     // Provides access to the current authenticated user.
     private readonly ICurrentUser _currentUser;
 

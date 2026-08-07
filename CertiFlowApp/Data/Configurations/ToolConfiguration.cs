@@ -26,9 +26,6 @@ public class ToolConfiguration : IEntityTypeConfiguration<Tool>
             .HasMaxLength(100)
             .IsRequired();
 
-        builder.Property(tool => tool.CalibrationStatus)
-            .IsRequired();
-
         // Updated since calibration expires on a calendar date not at a specific time
         // Column becomes nullable since property:
         // public DateOnly? CalibrationValidUntil { get; set; }

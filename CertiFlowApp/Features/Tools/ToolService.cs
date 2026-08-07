@@ -1,28 +1,54 @@
 ﻿using CertiFlowApp.Data;
 using CertiFlowApp.Models;
+using CertiFlowApp.Services.DateTime;
 using Microsoft.EntityFrameworkCore;
 
 namespace CertiFlowApp.Features.Tools
 {
     public class ToolService
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly TimeProvider _timeProvider;
 
-        public ToolService(AppDbContext dbContext)
+        public ToolService(
+            IDbContextFactory<AppDbContext> dbContextFactory,
+            TimeProvider timeProvider)
         {
-            _dbContext = dbContext;
+            _dbContextFactory = dbContextFactory;
+            _timeProvider = timeProvider;
         }
 
         // Read-only queries 
         // Returns all tools without EF Core change tracking
         // .AsNoTracking() to avoid unnecessary EF Core change tracking -> for all GetAllAsync(),GetByIdAsync() and GetEditFormAsync()
-        public async Task<List<Tool>> GetAllAsync(
+        public async Task<List<ToolListItem>> GetAllAsync(
             CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Tools
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var tools = await db.Tools
                 .AsNoTracking()
                 .OrderBy(tool => tool.Name)
                 .ToListAsync(cancellationToken);
+
+            var today = ApplicationDateTime.Today(_timeProvider);
+
+            return tools
+                .Select(tool => new ToolListItem
+                {
+                    Id = tool.Id,
+                    Name = tool.Name,
+                    SerialNumber = tool.SerialNumber,
+                    ToolType = tool.ToolType,
+                    CalibrationValidUntil = tool.CalibrationValidUntil,
+                    CalibrationStatus = ToolCalibrationRules.GetStatus(
+                        tool.CalibrationValidUntil,
+                        today),
+                    IsActive = tool.IsActive,
+                    CreatedAtUtc = tool.CreatedAtUtc
+                })
+                .ToList();
         }
 
         // Returns one tool, including its related measurements
@@ -30,7 +56,10 @@ namespace CertiFlowApp.Features.Tools
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Tools
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.Tools
                 .AsNoTracking()
                 .Include(tool => tool.Measurements)
                 .SingleOrDefaultAsync(
@@ -43,13 +72,16 @@ namespace CertiFlowApp.Features.Tools
             CreateToolForm form,
             CancellationToken cancellationToken = default)
         {
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
             var name = form.Name.Trim();
             var serialNumber = form.SerialNumber.Trim();
             var toolType = form.ToolType.Trim();
 
             // Prevent duplicate serial numbers when new tool is created
             var serialNumberExists =
-                await _dbContext.Tools.AnyAsync(
+                await db.Tools.AnyAsync(
                     tool =>
                         tool.SerialNumber == serialNumber,
                     cancellationToken);
@@ -66,13 +98,12 @@ namespace CertiFlowApp.Features.Tools
                 Name = name,
                 SerialNumber = serialNumber,
                 ToolType = toolType,
-                CalibrationStatus = form.CalibrationStatus,
                 CalibrationValidUntil = form.CalibrationValidUntil,
                 IsActive = form.IsActive
             };
 
-            _dbContext.Tools.Add(tool);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            db.Tools.Add(tool);
+            await db.SaveChangesAsync(cancellationToken);
 
             return tool;
         }
@@ -82,7 +113,10 @@ namespace CertiFlowApp.Features.Tools
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Tools
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.Tools
                 .AsNoTracking()
                 .Where(tool => tool.Id == id)
                 .Select(tool => new EditToolForm
@@ -91,7 +125,6 @@ namespace CertiFlowApp.Features.Tools
                     Name = tool.Name,
                     SerialNumber = tool.SerialNumber,
                     ToolType = tool.ToolType,
-                    CalibrationStatus = tool.CalibrationStatus,
                     CalibrationValidUntil = tool.CalibrationValidUntil,
                     IsActive = tool.IsActive
                 })
@@ -103,7 +136,10 @@ namespace CertiFlowApp.Features.Tools
             EditToolForm form,
             CancellationToken cancellationToken = default)
         {
-            var tool = await _dbContext.Tools
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var tool = await db.Tools
                 .SingleOrDefaultAsync(
                     tool => tool.Id == form.Id,
                     cancellationToken);
@@ -119,7 +155,7 @@ namespace CertiFlowApp.Features.Tools
 
             // Prevent duplicate serial numbers when updating a tool
             var serialNumberExists =
-                await _dbContext.Tools.AnyAsync(
+                await db.Tools.AnyAsync(
                     otherTool =>
                         // Filter out the current tool being updated, to check if other tool already uses the same serial number
                         otherTool.Id != form.Id &&
@@ -135,11 +171,10 @@ namespace CertiFlowApp.Features.Tools
             tool.Name = name;
             tool.SerialNumber = serialNumber;
             tool.ToolType = toolType;
-            tool.CalibrationStatus = form.CalibrationStatus;
             tool.CalibrationValidUntil = form.CalibrationValidUntil;
             tool.IsActive = form.IsActive;
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await db.SaveChangesAsync(cancellationToken);
 
             return true;
         }
@@ -149,7 +184,10 @@ namespace CertiFlowApp.Features.Tools
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            var tool = await _dbContext.Tools
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var tool = await db.Tools
                 .SingleOrDefaultAsync(
                     tool => tool.Id == id,
                     cancellationToken);
@@ -159,7 +197,7 @@ namespace CertiFlowApp.Features.Tools
                 return false;
             }
 
-            var hasMeasurements = await _dbContext.Measurements.AnyAsync(
+            var hasMeasurements = await db.Measurements.AnyAsync(
                 measurement => measurement.ToolId == id,
                 cancellationToken);
 
@@ -169,8 +207,8 @@ namespace CertiFlowApp.Features.Tools
                     "The tool cannot be deleted because it has related measurements.");
             }
 
-            _dbContext.Tools.Remove(tool);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            db.Tools.Remove(tool);
+            await db.SaveChangesAsync(cancellationToken);
 
             return true;
         }
