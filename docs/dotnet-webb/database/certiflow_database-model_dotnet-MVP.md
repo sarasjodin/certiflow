@@ -125,7 +125,6 @@ Represents a measuring instrument.
 | Name                     | VARCHAR(150) | Required     |
 | SerialNumber             | VARCHAR(100) | UNIQUE       |
 | ToolType                 | VARCHAR(100) | Required     |
-| CalibrationStatus        | INT          | Enum         |
 | CalibrationValidUntil    | DATE         | Nullable     |
 | IsActive                 | BOOLEAN      | Default TRUE |
 | CreatedByUserId          | TEXT         | FK           |
@@ -205,6 +204,7 @@ Stores critical business events.
 
 ## CalibrationStatus
 
+- MissingDate
 - Valid
 - Expired
 
