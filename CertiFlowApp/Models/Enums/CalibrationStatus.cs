@@ -3,7 +3,7 @@
 // Calibration status of a measuring tool
 public enum CalibrationStatus
 {
-    Valid = 1,
-    Expired = 2
+    MissingDate,
+    Valid,
+    Expired
 }
-

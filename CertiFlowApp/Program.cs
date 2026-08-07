@@ -8,28 +8,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 // BUILDER
+// Creates the application builder
+// Used to configure logging, services, configuration and environment settings
 var builder = WebApplication.CreateBuilder(args);
 
-// LOGGING
-builder.Logging.ClearProviders();
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Logging.SetMinimumLevel(LogLevel.Debug);
-}
-else
-{
-    builder.Logging.SetMinimumLevel(LogLevel.Information);
-}
-
-builder.Logging.AddSimpleConsole(options =>
-{
-    options.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
-});
-
 // SERVICES
+// Managed by ASP.NET Core dependency injection
 
 // Database
+// Builds the PostgreSQL connection string from application configuration
 var connectionString =
     $"Host={builder.Configuration["POSTGRES_HOST"]};" +
     $"Port={builder.Configuration["POSTGRES_PORT"]};" +
@@ -37,21 +24,30 @@ var connectionString =
     $"Username={builder.Configuration["POSTGRES_USER"]};" +
     $"Password={builder.Configuration["POSTGRES_PASSWORD"]}";
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+
+// Registers a DbContext factory for AppDbContext
+// A new AppDbContext can be created for each database operation
+// This is preferable for Blazor Interactive Server because a Blazor circuit
+// can live longer than a normal HTTP request
+builder.Services.AddDbContextFactory<AppDbContext>(
+    options =>
+        options.UseNpgsql(connectionString),
+    ServiceLifetime.Scoped);
 
 // Authentication & Identity
+// Configures ASP.NET Core Identity.
+// Identity handles users, passwords, login, lockout and roles
 builder.Services
     .AddDefaultIdentity<ApplicationUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount =
-    builder.Environment.IsProduction();
-
+            builder.Environment.IsProduction();
+        // Password requirements.
         options.Password.RequiredLength = 6;
         options.Password.RequireDigit = true;
         options.Password.RequireUppercase = true;
         options.Password.RequireNonAlphanumeric = true;
-
+        // Locks the account temporarily after repeated failed login attempts
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.AllowedForNewUsers = true;
@@ -59,12 +55,27 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
+// Makes the authentication state available to Blazor components
 builder.Services.AddCascadingAuthenticationState();
 
-// Application services
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+// APPLICATION SERVICES
+
+// Registers the system clock as a singleton
+// Same instance of TimeProvider is used throughout the application, ensuring consistent time handling
+// Used for UTC audit timestamps and application date calculations.
 builder.Services.AddSingleton(TimeProvider.System);
+
+// HttpContextAccessor is used to access the current HTTP context, which is necessary for retrieving the current user
+builder.Services.AddHttpContextAccessor();
+
+// Scoped services are created once per dependency-injection scope.
+// Unlike a traditional web request, Blazor Interactive Server
+// keeps the same scoped service while the user interacts with the app.
+
+// Services depending on ICurrentUser receive CurrentUser.
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
+// Application services with feature-specific application logic
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ToolService>();
 

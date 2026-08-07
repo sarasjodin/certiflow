@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using CertiFlowApp.Models.Enums;
 
 namespace CertiFlowApp.Features.Tools;
 
@@ -25,9 +24,6 @@ public class EditToolForm
     ErrorMessage = "Tool type cannot exceed 100 characters.")]
     [Display(Name = "Tool type")]
     public string ToolType { get; set; } = string.Empty;
-
-    [Display(Name = "Calibration status")]
-    public CalibrationStatus CalibrationStatus { get; set; }
 
     [DataType(DataType.Date)]
     [Display(Name = "Calibration valid until")]

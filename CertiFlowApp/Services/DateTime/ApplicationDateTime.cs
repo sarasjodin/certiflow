@@ -24,4 +24,22 @@ public static class ApplicationDateTime
             ? Format(value.Value)
             : null;
     }
+
+    // Formats a calendar date without applying time-zone conversion
+    public static string? Format(DateOnly? value)
+    {
+        return value?.ToString("yyyy-MM-dd");
+    }
+
+    // Uses TimeProvider to calculate today's calendar date in the application's time zone
+    public static DateOnly Today(TimeProvider timeProvider)
+    {
+        var utcNow = timeProvider.GetUtcNow();
+
+        var localNow = TimeZoneInfo.ConvertTime(
+            utcNow,
+            StockholmTimeZone);
+
+        return DateOnly.FromDateTime(localNow.DateTime);
+    }
 }
