@@ -1,0 +1,152 @@
+﻿@page "/jobs/{Id:guid}/delete"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Jobs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject JobService JobService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete job</PageTitle>
+
+@* JobNumber unique
+Customer must exist
+Starts as Draft
+Cannot delete job with related history *@
+
+@if (_isLoading)
+{
+    <p>Loading job...</p>
+}
+else if (_job is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Job not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/jobs">
+        Back to jobs
+    </a>
+}
+else
+{
+    <h1>Delete job</h1>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
+        </div>
+    }
+
+    <div class="alert alert-warning" role="alert">
+        Are you sure you want to delete this job?
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-3">Job number</dt>
+        <dd class="col-sm-9">@_job.JobNumber</dd>
+
+        <dt class="col-sm-3">Title</dt>
+        <dd class="col-sm-9">@_job.Title</dd>
+
+        <dt class="col-sm-3">Customer</dt>
+        <dd class="col-sm-9">@_job.CustomerName</dd>
+
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">@_job.Description</dd>
+
+        <dt class="col-sm-3">Approved at</dt>
+        <dd class="col-sm-9">
+            @if (_job.ApprovedAtUtc.HasValue)
+            {
+                @_job.ApprovedAtUtc.Value.ToString("yyyy-MM-dd")
+            }
+            else
+            {
+                <span>Not specified</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Related measurements</dt>
+        <dd class="col-sm-9">@_job.MeasurementCount</dd>
+        <dt class="col-sm-3">Related deviations</dt>
+        <dd class="col-sm-9">@_job.DeviationCount</dd>
+    </dl>
+
+    @if (_job.MeasurementCount > 0)
+    {
+        <div class="alert alert-info" role="alert">
+            This job cannot be deleted because it has related measurements.
+        </div>
+    }
+
+    <button type="button"
+            class="btn btn-danger"
+            disabled="@(_isDeleting ||
+                    _job.MeasurementCount > 0 ||
+                    _job.DeviationCount > 0)"
+            @onclick="DeleteJobAsync">
+        @(_isDeleting ? "Deleting..." : "Delete")
+    </button>
+
+    <a class="btn btn-secondary"
+       href="@($"/jobs/{Id}")">
+        Cancel
+    </a>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private JobDetailsModel? _job; // Job details model to hold the job information
+    private bool _isLoading = true;
+    private bool _isDeleting;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _job = await JobService.GetByIdAsync(Id);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task DeleteJobAsync()
+    {
+        _isDeleting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var deleted = await JobService.DeleteAsync(Id);
+
+            if (!deleted)
+            {
+                _errorMessage = "Job not found.";
+                return;
+            }
+
+            NavigationManager.NavigateTo("/jobs");
+        }
+        catch (InvalidOperationException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The job could not be deleted.";
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
+    }
+}
+
