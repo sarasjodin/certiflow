@@ -1,0 +1,194 @@
+﻿@page "/jobs/{Id:guid}/edit"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Customers
+@using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject JobService JobService
+@inject CustomerService CustomerService
+
+<PageTitle>Edit job</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading job...</p>
+}
+else if (_form is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Job not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/jobs">
+        Back to jobs
+    </a>
+}
+else if (_customers.Count == 0)
+{
+    <div class="alert alert-info" role="alert">
+        A customer must exist before a job can be edited.
+    </div>
+
+    <a class="btn btn-primary" href="/customers/create">
+        Create customer
+    </a>
+
+    <a class="btn btn-secondary" href="/jobs">
+        Back to jobs
+    </a>
+}
+else
+{
+    <h1>Edit job</h1>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
+        </div>
+    }
+
+    <EditForm Model="_form"
+              OnValidSubmit="UpdateJobAsync"
+              FormName="edit-job">
+
+    <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="customer" class="form-label">
+                Customer
+            </label>
+
+            <InputSelect id="customer"
+                         class="form-select"
+                         @bind-Value="_form.CustomerId">
+
+                <option value="">Select customer</option>
+
+                @foreach (var customer in _customers)
+                {
+                    <option value="@customer.Id">
+                        @customer.Name
+                    </option>
+                }
+            </InputSelect>
+
+            <ValidationMessage For="() => _form.CustomerId" />
+        </div>
+
+        <div class="mb-3">
+            <label for="job-number" class="form-label">
+                Job number
+            </label>
+
+            <InputText id="job-number"
+                        class="form-control"
+                        @bind-Value="_form.JobNumber" />
+
+            <ValidationMessage For="() => _form.JobNumber" />
+        </div>
+
+        <div class="mb-3">
+            <label for="job-title" class="form-label">
+                Title
+            </label>
+
+            <InputText id="job-title"
+                        class="form-control"
+                        @bind-Value="_form.Title" />
+
+            <ValidationMessage For="() => _form.Title" />
+        </div>
+
+        <div class="mb-3">
+            <label for="job-description" class="form-label">
+                Description
+            </label>
+
+            <InputTextArea id="job-description"
+                            class="form-control"
+                            @bind-Value="_form.Description" />
+
+            <ValidationMessage For="() => _form.Description" />
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@_isSaving">
+            @(_isSaving ? "Saving..." : "Save changes")
+        </button>
+
+        <a class="btn btn-secondary"
+           href="@($"/jobs/{Id}")">
+            Cancel
+        </a>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private EditJobForm? _form;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private string? _errorMessage;
+    private List<Customer> _customers = [];
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _customers = await CustomerService.GetAllAsync();
+            _form = await JobService.GetEditFormAsync(Id);
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The job could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task UpdateJobAsync()
+    {
+        if (_form is null)
+        {
+            return;
+        }
+
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var updated = await JobService.UpdateAsync(_form);
+
+            if (!updated)
+            {
+                _errorMessage = "Job not found.";
+                return;
+            }
+
+            NavigationManager.NavigateTo($"/jobs/{Id}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The job could not be updated.";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}

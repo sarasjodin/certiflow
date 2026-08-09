@@ -1,0 +1,101 @@
+﻿@page "/jobs"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Services.DateTime
+@using CertiFlowApp.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject JobService JobService
+
+<PageTitle>Jobs</PageTitle>
+
+<h1>Jobs</h1>
+
+<p>
+    <a class="btn btn-primary" href="/jobs/create">
+        Create job
+    </a>
+</p>
+
+@if (_isLoading)
+{
+    <p>Loading jobs...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (_jobs.Count == 0)
+{
+    <div class="alert alert-info" role="alert">
+        No jobs have been created.
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Job number</th>
+                <th>Title</th>
+                <th>Customer</th>
+                <th>Job status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var job in _jobs)
+            {
+                <tr>
+                    <td>@job.JobNumber</td>
+                    <td>@job.Title</td>
+                    <td>@job.CustomerName</td>
+                    <td>@job.Status</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="@($"/jobs/{job.Id}")">
+                            Details
+                        </a>
+
+                        <a class="btn btn-sm btn-outline-secondary"
+                           href="@($"/jobs/{job.Id}/edit")">
+                            Edit
+                        </a>
+
+                        <a class="btn btn-sm btn-outline-danger"
+                           href="@($"/jobs/{job.Id}/delete")">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<JobListItem> _jobs = [];
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _jobs = await JobService.GetAllAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The jobs could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+}
+

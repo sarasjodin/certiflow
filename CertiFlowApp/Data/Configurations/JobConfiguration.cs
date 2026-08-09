@@ -21,6 +21,9 @@ namespace CertiFlowApp.Data.Configurations
                 .HasMaxLength(150)
                 .IsRequired();
 
+            builder.Property(job => job.Description)
+                .HasMaxLength(2000);
+
             builder.Property(job => job.Status)
                 .IsRequired();
 
@@ -28,6 +31,7 @@ namespace CertiFlowApp.Data.Configurations
                 .HasMaxLength(100);
 
             // Multiple NULL values are allowed by a PostgreSQL unique index
+            // Certificate numbers must be unique when assigned.
             builder.HasIndex(job => job.CertificateNumber)
                 .IsUnique();
 

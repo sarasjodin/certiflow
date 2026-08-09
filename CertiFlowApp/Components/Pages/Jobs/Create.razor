@@ -1,0 +1,173 @@
+﻿@page "/jobs/create"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Customers
+@using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject JobService JobService
+@inject CustomerService CustomerService
+
+<PageTitle>Create job</PageTitle>
+
+<h1>Create job</h1>
+
+@if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+
+@if (_isLoading)
+{
+    <div class="alert alert-info" role="alert">
+        Loading customers...
+    </div>
+}
+
+else if (_customers.Count == 0)
+{
+    <div class="alert alert-info" role="alert">
+        A customer must be created before a job can be created.
+    </div>
+
+    <a class="btn btn-primary" href="/customers/create">
+        Create customer
+    </a>
+
+    <a class="btn btn-secondary" href="/jobs">
+        Back to jobs
+    </a>
+}
+else
+{
+    <EditForm Model="_form"
+              OnValidSubmit="CreateJobAsync"
+              FormName="create-job">
+
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="customer" class="form-label">
+                Customer
+            </label>
+
+            <InputSelect id="customer"
+                         class="form-select"
+                         @bind-Value="_form.CustomerId">
+
+                <option value="">Select customer</option>
+
+                @foreach (var customer in _customers)
+                {
+                    <option value="@customer.Id">
+                        @customer.Name
+                    </option>
+                }
+            </InputSelect>
+
+            <ValidationMessage For="() => _form.CustomerId" />
+        </div>
+
+        <div class="mb-3">
+            <label for="job-number" class="form-label">
+                Job number
+            </label>
+
+            <InputText id="job-number"
+                       class="form-control"
+                       @bind-Value="_form.JobNumber" />
+
+            <ValidationMessage For="() => _form.JobNumber" />
+        </div>
+
+        <div class="mb-3">
+            <label for="job-title" class="form-label">
+                Title
+            </label>
+
+            <InputText id="job-title"
+                       class="form-control"
+                       @bind-Value="_form.Title" />
+
+            <ValidationMessage For="() => _form.Title" />
+        </div>
+
+        <div class="mb-3">
+            <label for="job-description" class="form-label">
+                Description
+            </label>
+
+            <InputTextArea id="job-description"
+                           class="form-control"
+                           @bind-Value="_form.Description" />
+
+            <ValidationMessage For="() => _form.Description" />
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@_isSaving">
+            @(_isSaving ? "Saving..." : "Create")
+        </button>
+
+        <a class="btn btn-secondary" href="/jobs">
+            Cancel
+        </a>
+    </EditForm>
+}
+
+
+
+@code {
+    private readonly CreateJobForm _form = new();
+    private bool _isSaving;
+    private string? _errorMessage;
+    private List<Customer> _customers = [];
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _customers = await CustomerService.GetAllAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The customers could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CreateJobAsync()
+    {
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var job = await JobService.CreateAsync(_form);
+
+            NavigationManager.NavigateTo(
+                $"/jobs/{job.Id}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The job could not be created.";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}
+
