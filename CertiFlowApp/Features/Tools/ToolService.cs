@@ -8,6 +8,8 @@ namespace CertiFlowApp.Features.Tools
     public class ToolService
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+
+        // ToolService depends on TimeProvider to get the current date for calibration status calculations
         private readonly TimeProvider _timeProvider;
 
         public ToolService(
