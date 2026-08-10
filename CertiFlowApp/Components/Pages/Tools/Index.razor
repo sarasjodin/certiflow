@@ -77,7 +77,7 @@
                                     break;
                             }
                         </td>
-                        <td>@(ApplicationDateTime.Format(tool.CalibrationValidUntil) ?? "—")</td>
+                        <td>@ApplicationDateTime.Format(tool.CalibrationValidUntil)</td>
                         <td>@ApplicationDateTime.Format(tool.CreatedAtUtc)</td>
                         <td>
                             <a class="btn btn-sm btn-outline-primary"

@@ -20,6 +20,9 @@ public class MeasurementConfiguration
             .HasMaxLength(30)
             .IsRequired();
 
+        builder.Property(measurement => measurement.Notes)
+                .HasMaxLength(2000);
+
         builder.Property(measurement => measurement.Status)
             .IsRequired();
 

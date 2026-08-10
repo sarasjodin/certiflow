@@ -1,0 +1,104 @@
+﻿@page "/measurements"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Measurements
+@using CertiFlowApp.Services.DateTime
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject MeasurementService MeasurementService
+
+<PageTitle>Measurements</PageTitle>
+
+<h1>Measurements</h1>
+
+<p>
+    <a class="btn btn-primary" href="/measurements/create">
+        Create measurement
+    </a>
+</p>
+
+@if (_isLoading)
+{
+    <p>Loading measurements...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (_measurements.Count == 0)
+{
+    <div class="alert alert-info" role="alert">
+        No measurements have been created.
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Job</th>
+                <th>Tool</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Measured at</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var measurement in _measurements)
+            {
+                <tr>
+                    <td>@measurement.JobNumber</td>
+                    <td>
+                        @measurement.ToolName - @measurement.ToolSerialNumber
+                    </td>
+                    <td>@measurement.Value @measurement.Unit</td>
+                    <td>@measurement.Status</td>
+                    <td>@ApplicationDateTime.Format(measurement.MeasuredAtUtc)</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="@($"/measurements/{measurement.Id}")">
+                            Details
+                        </a>
+
+                        <a class="btn btn-sm btn-outline-secondary"
+                           href="@($"/measurements/{measurement.Id}/edit")">
+                            Edit
+                        </a>
+
+                        <a class="btn btn-sm btn-outline-danger"
+                           href="@($"/measurements/{measurement.Id}/delete")">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<MeasurementListItem> _measurements = [];
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _measurements = await MeasurementService.GetAllAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The measurements could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+}
+

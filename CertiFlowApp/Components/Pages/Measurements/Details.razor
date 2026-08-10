@@ -1,0 +1,115 @@
+﻿@page "/measurements/{Id:guid}"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Measurements
+@using CertiFlowApp.Services.DateTime
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject MeasurementService MeasurementService
+
+<PageTitle>Measurement details</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading measurement...</p>
+}
+else if (_measurement is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Measurement not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/measurements">
+        Back to measurements
+    </a>
+}
+else
+{
+    <h1>Measurement details</h1>
+
+    <dl class="row">
+        <dt class="col-sm-3">Customer name</dt>
+        <dd class="col-sm-9">@_measurement.CustomerName</dd>
+
+        <dt class="col-sm-3">Job number</dt>
+        <dd class="col-sm-9">@_measurement.JobNumber</dd>
+
+        <dt class="col-sm-3">Tool name</dt>
+        <dd class="col-sm-9">@_measurement.ToolName</dd>
+
+        <dt class="col-sm-3">Tool serial number</dt>
+        <dd class="col-sm-9">@_measurement.ToolSerialNumber</dd>
+
+        <dt class="col-sm-3">Value</dt>
+        <dd class="col-sm-9">
+            @_measurement.Value @_measurement.Unit
+        </dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@_measurement.Status</dd>
+
+        <dt class="col-sm-3">Measured at</dt>
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_measurement.MeasuredAtUtc)</dd>
+
+        <dt class="col-sm-3">Notes</dt>
+        <dd class="col-sm-9">
+            @if (!string.IsNullOrWhiteSpace(_measurement.Notes))
+            {
+                @_measurement.Notes
+            }
+            else
+            {
+                <span>-</span>
+            }
+        </dd>
+        <dt class="col-sm-3">Performed by</dt>
+        <dd class="col-sm-9">@_measurement.PerformedByUserId</dd>
+        <dt class="col-sm-3">Verified at</dt>
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_measurement.VerifiedAtUtc)</dd>
+        <dt class="col-sm-3">Verified by</dt>
+        <dd class="col-sm-9">@_measurement.VerifiedByUserId</dd>
+        <dt class="col-sm-3">Created</dt>
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_measurement.CreatedAtUtc)</dd>
+        <dt class="col-sm-3">Created by</dt>
+        <dd class="col-sm-9">@_measurement.CreatedByUserId</dd>
+        <dt class="col-sm-3">Updated at</dt>
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_measurement.UpdatedAtUtc)</dd>
+        <dt class="col-sm-3">Updated by</dt>
+        <dd class="col-sm-9">@_measurement.UpdatedByUserId</dd>
+    </dl>
+
+    <a class="btn btn-primary"
+       href="@($"/measurements/{_measurement.Id}/edit")">
+        Edit
+    </a>
+
+    <a class="btn btn-danger"
+       href="@($"/measurements/{_measurement.Id}/delete")">
+        Delete
+    </a>
+
+    <a class="btn btn-secondary" href="/measurements">
+        Back to measurements
+    </a>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private MeasurementDetailsModel? _measurement; // Measurement details model to hold the measurement information
+    private bool _isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _measurement = await MeasurementService.GetByIdAsync(Id);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

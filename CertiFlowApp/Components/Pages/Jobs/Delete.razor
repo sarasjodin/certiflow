@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using CertiFlowApp.Features.Jobs
 @using Microsoft.AspNetCore.Authorization
+@using CertiFlowApp.Services.DateTime
 @attribute [Authorize]
 @inject JobService JobService
 @inject NavigationManager NavigationManager
@@ -51,17 +52,7 @@ else
         <dd class="col-sm-9">@_job.Description</dd>
 
         <dt class="col-sm-3">Approved at</dt>
-        <dd class="col-sm-9">
-            @if (_job.ApprovedAtUtc.HasValue)
-            {
-                @_job.ApprovedAtUtc.Value.ToString("yyyy-MM-dd")
-            }
-            else
-            {
-                <span>Not specified</span>
-            }
-        </dd>
-
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_job.ApprovedAtUtc)</dd>
         <dt class="col-sm-3">Related measurements</dt>
         <dd class="col-sm-9">@_job.MeasurementCount</dd>
         <dt class="col-sm-3">Related deviations</dt>

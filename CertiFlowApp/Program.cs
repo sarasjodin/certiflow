@@ -3,6 +3,7 @@ using CertiFlowApp.Components;
 using CertiFlowApp.Data;
 using CertiFlowApp.Features.Customers;
 using CertiFlowApp.Features.Jobs;
+using CertiFlowApp.Features.Measurements;
 using CertiFlowApp.Features.Tools;
 using CertiFlowApp.Services.CurrentUser;
 using Microsoft.AspNetCore.Identity;
@@ -80,7 +81,7 @@ builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ToolService>();
 builder.Services.AddScoped<JobService>();
-
+builder.Services.AddScoped<MeasurementService>();
 
 // UI
 builder.Services.AddRazorPages();
