@@ -17,18 +17,18 @@ public static class ApplicationDateTime
     }
 
     // Formats an optional UTC timestamp
-    // Handles nullable DateTimeOffset values - returning null if the input is null
-    public static string? Format(DateTimeOffset? value)
+    // Handles nullable DateTimeOffset values - returning "-" when no timestamp exists
+    public static string Format(DateTimeOffset? value)
     {
         return value.HasValue
             ? Format(value.Value)
-            : null;
+            : "-";
     }
 
     // Formats a calendar date without applying time-zone conversion
-    public static string? Format(DateOnly? value)
+    public static string Format(DateOnly? value)
     {
-        return value?.ToString("yyyy-MM-dd");
+        return value?.ToString("yyyy-MM-dd") ?? "-";
     }
 
     // Uses TimeProvider to calculate today's calendar date in the application's time zone

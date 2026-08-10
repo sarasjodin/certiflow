@@ -8,8 +8,6 @@ namespace CertiFlowApp.Features.Tools
     public class ToolService
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
-
-        // ToolService depends on TimeProvider to get the current date for calibration status calculations
         private readonly TimeProvider _timeProvider;
 
         public ToolService(
@@ -17,6 +15,9 @@ namespace CertiFlowApp.Features.Tools
             TimeProvider timeProvider)
         {
             _dbContextFactory = dbContextFactory;
+
+            // ToolService depends on TimeProvider to get the current date
+            // for calibration status calculations
             _timeProvider = timeProvider;
         }
 
@@ -54,6 +55,7 @@ namespace CertiFlowApp.Features.Tools
         }
 
         // Returns one tool, including its related measurements
+        // TODO: Implement ToolDetailsModel
         public async Task<Tool?> GetByIdAsync(
             Guid id,
             CancellationToken cancellationToken = default)
@@ -213,6 +215,26 @@ namespace CertiFlowApp.Features.Tools
             await db.SaveChangesAsync(cancellationToken);
 
             return true;
+        }
+
+        // Return tools as dropdown
+        public async Task<List<ToolOption>> GetOptionsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.Tools
+                .AsNoTracking()
+                .OrderBy(tool => tool.Name)
+                .ThenBy(tool => tool.SerialNumber)
+                .Select(tool => new ToolOption
+                {
+                    Id = tool.Id,
+                    Name = tool.Name,
+                    SerialNumber = tool.SerialNumber
+                })
+                .ToListAsync(cancellationToken);
         }
     }
 }

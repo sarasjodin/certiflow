@@ -37,7 +37,7 @@ namespace CertiFlowApp.Features.Jobs
             .ToListAsync(cancellationToken);
         }
 
-        // Returns data for the job details vie´w including counts of related measurements and deviations
+        // Returns data for the job details view including counts of related measurements and deviations
         public async Task<JobDetailsModel?> GetByIdAsync(
             Guid id,
             CancellationToken cancellationToken = default)
@@ -86,6 +86,13 @@ namespace CertiFlowApp.Features.Jobs
             var title = form.Title.Trim();
             var description = form.Description?.Trim();
 
+            // Check if a customer is selected
+            if (!form.CustomerId.HasValue)
+            {
+                throw new InvalidOperationException(
+                    "A customer must be selected.");
+            }
+
             // Check if jobNumber already exists
             var jobNumberExists = await db.Jobs.AnyAsync(
                 job => job.JobNumber == jobNumber,
@@ -112,7 +119,7 @@ namespace CertiFlowApp.Features.Jobs
             var job = new Job
             {
                 Id = Guid.NewGuid(),
-                CustomerId = form.CustomerId!.Value,
+                CustomerId = form.CustomerId.Value,
                 JobNumber = jobNumber,
                 Title = title,
                 Description = description,
@@ -159,6 +166,13 @@ namespace CertiFlowApp.Features.Jobs
             await using var db =
                 await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
+            // Check if a customer is selected
+            if (!form.CustomerId.HasValue)
+            {
+                throw new InvalidOperationException(
+                    "A customer must be selected.");
+            }
+
             // Check if jobNumber exists for another job
             var jobNumberExists = await db.Jobs.AnyAsync(
                 otherJob =>
@@ -195,7 +209,7 @@ namespace CertiFlowApp.Features.Jobs
                 return false;
             }
 
-            job.CustomerId = form.CustomerId!.Value;
+            job.CustomerId = form.CustomerId.Value;
             job.JobNumber = form.JobNumber.Trim();
             job.Title = form.Title.Trim();
             job.Description = form.Description?.Trim();
@@ -245,6 +259,25 @@ namespace CertiFlowApp.Features.Jobs
             await db.SaveChangesAsync(cancellationToken);
 
             return true;
+        }
+
+        // Return jobs as dropdown
+        public async Task<List<JobOption>> GetOptionsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            await using var db =
+            await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.Jobs
+                .AsNoTracking()
+                .OrderBy(job => job.JobNumber)
+                .Select(job => new JobOption
+                {
+                    Id = job.Id,
+                    JobNumber = job.JobNumber,
+                    Title = job.Title
+                })
+                .ToListAsync(cancellationToken);
         }
     }
 }
