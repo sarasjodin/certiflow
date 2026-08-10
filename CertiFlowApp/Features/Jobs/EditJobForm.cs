@@ -2,6 +2,7 @@
 
 namespace CertiFlowApp.Features.Jobs;
 
+// Sealed because it is a form input model used for UI (not intended to be inherited)
 public sealed class EditJobForm
 {
     // form.Id = Id identifies the existing job but is not editable by the user

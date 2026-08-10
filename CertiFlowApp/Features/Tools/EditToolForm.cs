@@ -2,9 +2,10 @@
 
 namespace CertiFlowApp.Features.Tools;
 
-// Form model used when editing a measuring tool.
-public class EditToolForm
+// Sealed because it is a form input model used for UI (not intended to be inherited)
+public sealed class EditToolForm
 {
+    // Form model used when editing a measuring tool.
     public Guid Id { get; set; }
 
     [Required(ErrorMessage = "Tool name is required.")]

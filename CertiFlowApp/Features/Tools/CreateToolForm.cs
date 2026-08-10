@@ -2,9 +2,10 @@
 
 namespace CertiFlowApp.Features.Tools;
 
-// Form model used when creating a measuring tool.
-public class CreateToolForm
+// Sealed because it is a form input model used for UI (not intended to be inherited)
+public sealed class CreateToolForm
 {
+    // Form model used when creating a measuring tool.
     [Required(ErrorMessage = "Tool name is required.")]
     [StringLength(
         150,

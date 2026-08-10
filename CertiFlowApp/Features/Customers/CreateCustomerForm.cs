@@ -2,9 +2,10 @@
 
 namespace CertiFlowApp.Features.Customers
 {
-    // Separate form model
-    public class CreateCustomerForm
+    // Sealed because it is a form input model used for UI (not intended to be inherited)
+    public sealed class CreateCustomerForm
     {
+        // Form model used when creating a customer
         [Required(ErrorMessage = "Customer name is required")]
         [StringLength(
             150,

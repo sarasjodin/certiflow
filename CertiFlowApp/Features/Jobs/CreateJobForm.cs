@@ -2,10 +2,12 @@
 
 namespace CertiFlowApp.Features.Jobs;
 
-// Contains only fields the user is allowed to set when creating a job
-// While status, approval data and audit fields are controlled by the application
+// Sealed because it is a form input model used for UI (not intended to be inherited)
 public sealed class CreateJobForm
 {
+    // Contains only fields the user is allowed to set when creating a job
+    // While status, approval data and audit fields are controlled by the application
+
     [Required(ErrorMessage = "Customer is required.")]
     [Display(Name = "Customer")]
     public Guid? CustomerId { get; set; }
