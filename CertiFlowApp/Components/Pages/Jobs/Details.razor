@@ -43,36 +43,13 @@ else
         <dd class="col-sm-9">@_job.CertificateNumber</dd>
 
         <dt class="col-sm-3">Approved at</dt>
-        <dd class="col-sm-9">
-            @if (_job.ApprovedAtUtc.HasValue)
-            {
-                @_job.ApprovedAtUtc.Value.ToString("yyyy-MM-dd")
-            }
-            else
-            {
-                <span>Not specified</span>
-            }
-        </dd>
-
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_job.ApprovedAtUtc)</dd>
         <dt class="col-sm-3">Created</dt>
-        <dd class="col-sm-9">
-            @ApplicationDateTime.Format(_job.CreatedAtUtc)
-        </dd>
-
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_job.CreatedAtUtc)</dd>
         <dt class="col-sm-3">Created by</dt>
         <dd class="col-sm-9">@_job.CreatedByUserId</dd>
-
         <dt class="col-sm-3">Last updated</dt>
-        <dd class="col-sm-9">
-            @if (_job.UpdatedAtUtc.HasValue)
-            {
-                @ApplicationDateTime.Format(_job.UpdatedAtUtc.Value)
-            }
-            else
-            {
-                <span>Not updated</span>
-            }
-        </dd>
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_job.UpdatedAtUtc)</dd>
         <dt class="col-sm-3">Last updated by</dt>
         <dd class="col-sm-9">
             @if (!string.IsNullOrWhiteSpace(_job.UpdatedByUserId))
@@ -81,7 +58,7 @@ else
             }
             else
             {
-                <span>Not updated</span>
+                <span>-</span>
             }
         </dd>
         <dt class="col-sm-3">Measurements</dt>
