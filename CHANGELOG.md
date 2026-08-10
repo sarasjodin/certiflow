@@ -9,10 +9,23 @@ This project adheres to Semantic Versioning.
 ## [Unreleased]
 
 ### Planned
-- Roles and authorization
-- Initial domain model and business-related database migration
+- Role-based authorization for Operator (maybe also Verifier and Approver)
 
 ---
+
+## [0.4.0] - 2026-08-10
+
+### Added
+- CRUD for Customers, Jobs, Tools, and Measurements
+- New form input models and read models
+- Services using IDbContextFactory
+- Tool calibration logic
+- Measurement workflow with Job and Tool relationships
+- Automatic MeasuredAtUtc and current user assignment
+- Shared date and time formatting
+- New database changes and EF Core migrations
+- Automatic application of pending migrations in Development
+- Updated navigation and new UI pages
 
 ## [0.3.0] - 2026-08-03
 
