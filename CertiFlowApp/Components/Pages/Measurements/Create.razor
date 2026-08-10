@@ -1,0 +1,213 @@
+﻿@page "/measurements/create"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Features.Tools
+@using CertiFlowApp.Features.Measurements
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject JobService JobService
+@inject ToolService ToolService
+@inject MeasurementService MeasurementService
+
+<PageTitle>Create measurement</PageTitle>
+
+<h1>Create measurement</h1>
+
+@if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+
+@if (_isLoading)
+{
+    <div class="alert alert-info" role="alert">
+        Loading jobs and tools...
+    </div>
+}
+else if (_jobs.Count == 0)
+{
+    <div class="alert alert-info" role="alert">
+        A job must be created before a measurement can be created.
+    </div>
+
+    <a class="btn btn-primary" href="/jobs/create">
+        Create job
+    </a>
+
+    <a class="btn btn-secondary" href="/measurements">
+        Back to measurements
+    </a>
+}
+else if (_tools.Count == 0)
+{
+    <div class="alert alert-info" role="alert">
+        A tool must be created before a measurement can be created.
+    </div>
+
+    <a class="btn btn-primary" href="/tools/create">
+        Create tool
+    </a>
+
+    <a class="btn btn-secondary" href="/measurements">
+        Back to measurements
+    </a>
+}
+else
+{
+    <EditForm Model="_form"
+        OnValidSubmit="CreateMeasurementAsync"
+        FormName="create-measurement">
+
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="job-id" class="form-label">
+                Job
+            </label>
+
+            <InputSelect id="job-id"
+                         class="form-select"
+                         @bind-Value="_form.JobId">
+
+                <option value="">Select job</option>
+
+                @foreach (var job in _jobs)
+                {
+                    <option value="@job.Id">
+                        @job.JobNumber - @job.Title
+                    </option>
+                }
+            </InputSelect>
+
+            <ValidationMessage For="() => _form.JobId" />
+        </div>
+
+        <div class="mb-3">
+            <label for="tool-id" class="form-label">
+                Tool
+            </label>
+
+            <InputSelect id="tool-id"
+                         class="form-select"
+                         @bind-Value="_form.ToolId">
+
+                <option value="">Select tool</option>
+
+                @foreach (var tool in _tools)
+                {
+                    <option value="@tool.Id">
+                        @tool.Name - @tool.SerialNumber
+                    </option>
+                }
+            </InputSelect>
+
+            <ValidationMessage For="() => _form.ToolId" />
+        </div>
+
+        <div class="mb-3">
+            <label for="measurement-value" class="form-label">
+                Value
+            </label>
+
+            <InputNumber id="measurement-value"
+                         class="form-control"
+                         @bind-Value="_form.Value" />
+
+            <ValidationMessage For="() => _form.Value" />
+        </div>
+
+        <div class="mb-3">
+            <label for="measurement-unit" class="form-label">
+                Unit
+            </label>
+
+            <InputText id="measurement-unit"
+                       class="form-control"
+                           @bind-Value="_form.Unit" />
+
+            <ValidationMessage For="() => _form.Unit" />
+
+        </div>
+
+        <div class="mb-3">
+            <label for="measurement-notes" class="form-label">
+                Notes
+            </label>
+
+            <InputTextArea id="measurement-notes"
+                           class="form-control"
+                           @bind-Value="_form.Notes" />
+
+            <ValidationMessage For="() => _form.Notes" />
+
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@_isSaving">
+            @(_isSaving ? "Saving..." : "Create")
+        </button>
+
+        <a class="btn btn-secondary" href="/measurements">
+            Cancel
+        </a>
+    </EditForm>
+}
+
+
+
+@code {
+    private readonly CreateMeasurementForm _form = new();
+    private bool _isSaving;
+    private string? _errorMessage;
+    private List<JobOption> _jobs = [];
+    private List<ToolOption> _tools = [];
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _jobs = await JobService.GetOptionsAsync();
+            _tools = await ToolService.GetOptionsAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Jobs and tools could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CreateMeasurementAsync()
+    {
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var measurement = await MeasurementService.CreateAsync(_form);
+
+            NavigationManager.NavigateTo(
+                $"/measurements/{measurement.Id}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The measurement could not be created.";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}
+

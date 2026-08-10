@@ -1,0 +1,157 @@
+﻿@page "/measurements/{Id:guid}/edit"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Measurements
+@using CertiFlowApp.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject MeasurementService MeasurementService
+
+<PageTitle>Edit measurement</PageTitle>
+
+@if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+
+@if (_isLoading)
+{
+    <div class="alert alert-info" role="alert">
+        Loading measurement...
+    </div>
+}
+else if (_form is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Measurement not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/measurements">
+        Back to measurements
+    </a>
+}
+else
+{
+
+    <EditForm Model="_form"
+              OnValidSubmit="UpdateMeasurementAsync"
+              FormName="edit-measurement">
+
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="measurement-value" class="form-label">
+                Value
+            </label>
+
+            <InputNumber id="measurement-value"
+                         class="form-control"
+                         @bind-Value="_form.Value" />
+
+            <ValidationMessage For="() => _form.Value" />
+        </div>
+
+        <div class="mb-3">
+            <label for="measurement-unit" class="form-label">
+                Unit
+            </label>
+
+            <InputText id="measurement-unit"
+                       class="form-control"
+                       @bind-Value="_form.Unit" />
+
+            <ValidationMessage For="() => _form.Unit" />
+
+        </div>
+
+        <div class="mb-3">
+            <label for="measurement-notes" class="form-label">
+                Notes
+            </label>
+
+            <InputTextArea id="measurement-notes"
+                           class="form-control"
+                           @bind-Value="_form.Notes" />
+
+            <ValidationMessage For="() => _form.Notes" />
+
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@_isSaving">
+            @(_isSaving ? "Saving..." : "Save changes")
+        </button>
+
+        <a class="btn btn-secondary"
+           href="@($"/measurements/{Id}")">
+            Cancel
+        </a>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private EditMeasurementForm? _form;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _form = await MeasurementService.GetEditFormAsync(Id);
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The measurement could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task UpdateMeasurementAsync()
+    {
+        if (_form is null)
+        {
+            return;
+        }
+
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var updated = await MeasurementService.UpdateAsync(_form);
+
+            if (!updated)
+            {
+                _errorMessage = "Measurement not found.";
+                return;
+            }
+
+            NavigationManager.NavigateTo($"/measurements/{Id}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The measurement could not be updated.";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}
