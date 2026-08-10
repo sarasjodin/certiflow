@@ -2,6 +2,7 @@
 
 namespace CertiFlowApp.Features.Jobs;
 
+// Sealed because it is a read selection model used for UI (not intended to be inherited)
 public sealed class JobDetailsModel
 {
     // Read model for the job details view

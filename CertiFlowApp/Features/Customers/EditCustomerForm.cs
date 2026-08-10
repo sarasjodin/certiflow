@@ -2,9 +2,10 @@
 
 namespace CertiFlowApp.Features.Customers
 {
-    // Separate form model
-    public class EditCustomerForm
+    // Sealed because it is a form input model used for UI (not intended to be inherited)
+    public sealed class EditCustomerForm
     {
+        // Form model used when editing a customer
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Customer name is required")]
