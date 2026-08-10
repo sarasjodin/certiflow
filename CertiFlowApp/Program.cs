@@ -146,6 +146,14 @@ app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
     return Results.Redirect("/");
 });
 
+// Run DB MIGRATIONS on Dev environment
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 // RUN
 app.Run();
