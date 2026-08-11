@@ -12,6 +12,21 @@ This project adheres to Semantic Versioning.
 - Role-based authorization for Operator (maybe also Verifier and Approver)
 
 ---
+## [0.5.0] - 2026-08-11
+
+### Added
+
+- Public dashboard as the home page
+- Public dashboard DTO and service
+- Public statistics for approved jobs, registered measurements, and available tools
+- Login option for unauthenticated users
+
+### Changed
+
+- Updated navigation based on authentication status
+- Management navigation is only shown to authenticated users
+- Replaced the previous home page with the public dashboard
+
 
 ## [0.4.0] - 2026-08-10
 
