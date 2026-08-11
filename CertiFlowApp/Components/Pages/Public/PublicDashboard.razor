@@ -1,0 +1,111 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Public
+@using CertiFlowApp.Services.DateTime
+@using Microsoft.AspNetCore.Components.Authorization
+@inject TimeProvider TimeProvider
+@inject PublicDashboardService PublicDashboardService
+
+<AuthorizeView>
+    <Authorized>
+        <h1>You are logged in</h1>
+        <p>Logged in as: @context.User.Identity?.Name</p>
+        <form method="post" action="/logout">
+            <button type="submit">Logout</button>
+        </form>
+    </Authorized>
+</AuthorizeView>
+
+<PageTitle>Home</PageTitle>
+
+<h1>Public Dashboard</h1>
+<p>
+    Welcome to CertiFlow's public dashboard.
+    Here you can view public statistics.
+</p>
+<AuthorizeView>
+    <NotAuthorized>
+<p>
+    Log in to manage customers, jobs, tools and measurements.
+</p>
+<p>
+    <a class="btn btn-primary" href="/Identity/Account/Login">Login</a>
+</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@if (_isLoading)
+{
+    <p>Loading dashboard...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (_dashboard is null)
+{
+    <div class="alert alert-info" role="alert">
+        Dashboard data could not be loaded.
+    </div>
+}
+else
+{
+    <p>
+        Last updated: @ApplicationDateTime.Format(_lastUpdatedUtc)
+    </p>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Approved jobs</th>
+                <th>Registered measurements</th>
+                <th>Available tools*</th>
+            </tr>
+        </thead>
+
+        <tbody>
+          
+            <tr>
+                <td>@_dashboard.ApprovedJobCount</td>
+                <td>@_dashboard.MeasurementCount</td>
+                <td>@_dashboard.AvailableToolCount</td>
+            </tr>
+           
+        </tbody>
+    </table>
+    <p>
+        * Available tools are active tools with a valid calibration.
+        Tools that are inactive or have an expired or missing calibration date
+        are not counted as available.
+    </p>
+}
+
+@code {
+    private PublicDashboardDto? _dashboard;
+    private DateTimeOffset? _lastUpdatedUtc;
+    
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Each time this component is initialized, the actual dashboard data is loaded
+            // into a new PublicDashboardDto
+            _dashboard = await PublicDashboardService.GetPublicAsync();
+            _lastUpdatedUtc = TimeProvider.GetUtcNow();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The dashboard could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}
+
