@@ -20,7 +20,7 @@ public class PublicDashboardService
 
     // Returns statistics for public dashboard
     // Approved jobs and measurements are counted directly in the database
-    // `Available tools count` needs business logic
+    // Available-tools-count needs additional business logic
     public async Task<PublicDashboardDto> GetPublicAsync(
         CancellationToken cancellationToken = default)
     {
@@ -31,7 +31,8 @@ public class PublicDashboardService
         // for the calibration status calculation
         var today = ApplicationDateTime.Today(_timeProvider);
 
-        // Get only calibration status and active state tool properties
+        // Get only calibration-status-date and active-state tool properties
+        // and store them in a temporary list
         var tools = await db.Tools
             .AsNoTracking()
             .Select(tool => new
@@ -39,7 +40,6 @@ public class PublicDashboardService
                 tool.CalibrationValidUntil,
                 tool.IsActive
             })
-            // To a temporary list
             .ToListAsync(cancellationToken);
 
         // Count the number of approved jobs directly in the database
@@ -53,6 +53,7 @@ public class PublicDashboardService
 
         // A tool is available when it is active
         // and its calibration is still valid
+        // Count the number of available tools in memory, from above list
         var availableToolCount = tools.Count(tool =>
             tool.IsActive &&
             ToolCalibrationRules.GetStatus(
