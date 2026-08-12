@@ -89,16 +89,19 @@ else
             <ValidationMessage For="() => _form.CalibrationValidUntil" />
         </div>
 
-        <button type="submit"
-                class="btn btn-primary"
-                disabled="@_isSaving">
-            @(_isSaving ? "Saving..." : "Save changes")
-        </button>
+        <div class="d-flex gap-2">
 
-        <a class="btn btn-secondary"
-           href="@($"/tools/{Id}")">
-            Cancel
-        </a>
+            <button type="submit"
+                    class="btn btn-primary"
+                    disabled="@_isSaving">
+                @(_isSaving ? "Saving..." : "Save changes")
+            </button>
+
+            <a class="btn btn-secondary"
+               href="@($"/tools/{Id}")">
+                Cancel
+            </a>
+        </div>
     </EditForm>
 }
 

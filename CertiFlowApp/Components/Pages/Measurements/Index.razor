@@ -42,7 +42,7 @@ else
                 <th>Value</th>
                 <th>Status</th>
                 <th>Measured at</th>
-                <th>Actions</th>
+                <th class="text-center">Actions</th>
             </tr>
         </thead>
 
@@ -58,20 +58,22 @@ else
                     <td>@measurement.Status</td>
                     <td>@ApplicationDateTime.Format(measurement.MeasuredAtUtc)</td>
                     <td>
-                        <a class="btn btn-sm btn-outline-primary"
-                           href="@($"/measurements/{measurement.Id}")">
-                            Details
-                        </a>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a class="btn btn-sm btn-outline-primary"
+                               href="@($"/measurements/{measurement.Id}")">
+                                Details
+                            </a>
 
-                        <a class="btn btn-sm btn-outline-secondary"
-                           href="@($"/measurements/{measurement.Id}/edit")">
-                            Edit
-                        </a>
+                            <a class="btn btn-sm btn-outline-secondary"
+                               href="@($"/measurements/{measurement.Id}/edit")">
+                                Edit
+                            </a>
 
-                        <a class="btn btn-sm btn-outline-danger"
-                           href="@($"/measurements/{measurement.Id}/delete")">
-                            Delete
-                        </a>
+                            <a class="btn btn-sm btn-outline-danger"
+                               href="@($"/measurements/{measurement.Id}/delete")">
+                                Delete
+                            </a>
+                        </div>
                     </td>
                 </tr>
             }

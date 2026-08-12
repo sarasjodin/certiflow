@@ -56,19 +56,21 @@ else
         <dd class="col-sm-9">@_customer.Jobs.Count</dd>
     </dl>
 
-    <a class="btn btn-primary"
-       href="@($"/customers/{_customer.Id}/edit")">
-        Edit
-    </a>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary"
+           href="@($"/customers/{_customer.Id}/edit")">
+            Edit
+        </a>
 
-    <a class="btn btn-danger"
-       href="@($"/customers/{_customer.Id}/delete")">
-        Delete
-    </a>
+        <a class="btn btn-danger"
+           href="@($"/customers/{_customer.Id}/delete")">
+            Delete
+        </a>
 
-    <a class="btn btn-secondary" href="/customers">
-        Back to customers
-    </a>
+        <a class="btn btn-secondary" href="/customers">
+            Back to customers
+        </a>
+    </div>
 }
 
 @code {

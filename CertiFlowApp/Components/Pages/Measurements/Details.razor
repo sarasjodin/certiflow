@@ -77,19 +77,22 @@ else
         <dd class="col-sm-9">@_measurement.UpdatedByUserId</dd>
     </dl>
 
-    <a class="btn btn-primary"
-       href="@($"/measurements/{_measurement.Id}/edit")">
-        Edit
-    </a>
+    <div class="d-flex gap-2">
 
-    <a class="btn btn-danger"
-       href="@($"/measurements/{_measurement.Id}/delete")">
-        Delete
-    </a>
+        <a class="btn btn-primary"
+           href="@($"/measurements/{_measurement.Id}/edit")">
+            Edit
+        </a>
 
-    <a class="btn btn-secondary" href="/measurements">
-        Back to measurements
-    </a>
+        <a class="btn btn-danger"
+           href="@($"/measurements/{_measurement.Id}/delete")">
+            Delete
+        </a>
+
+        <a class="btn btn-secondary" href="/measurements">
+            Back to measurements
+        </a>
+    </div>
 }
 
 @code {
