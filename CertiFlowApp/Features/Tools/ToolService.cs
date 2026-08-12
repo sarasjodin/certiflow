@@ -54,9 +54,8 @@ namespace CertiFlowApp.Features.Tools
                 .ToList();
         }
 
-        // Returns one tool, including its related measurements
-        // TODO: Implement ToolDetailsModel
-        public async Task<Tool?> GetByIdAsync(
+        // Returns tool data prepared for the details view
+        public async Task<ToolDetailsModel?> GetByIdAsync(
             Guid id,
             CancellationToken cancellationToken = default)
         {
@@ -65,10 +64,33 @@ namespace CertiFlowApp.Features.Tools
 
             return await db.Tools
                 .AsNoTracking()
-                .Include(tool => tool.Measurements)
-                .SingleOrDefaultAsync(
-                    tool => tool.Id == id,
-                    cancellationToken);
+                .Where(tool => tool.Id == id)
+                .Select(tool => new ToolDetailsModel
+                {
+                    Id = tool.Id,
+                    Name = tool.Name,
+                    SerialNumber = tool.SerialNumber,
+                    ToolType = tool.ToolType,
+                    CalibrationValidUntil = tool.CalibrationValidUntil,
+                    IsActive = tool.IsActive,
+                    MeasurementCount = tool.Measurements.Count,
+                    CreatedAtUtc = tool.CreatedAtUtc,
+                    CreatedByUserId = tool.CreatedByUserId,
+                    CreatedByUserName = db.Users
+                        .Where(user => user.Id == tool.CreatedByUserId)
+                        .Select(user => user.UserName)
+                        .SingleOrDefault()
+                        ?? tool.CreatedByUserId,
+                    UpdatedAtUtc = tool.UpdatedAtUtc,
+                    UpdatedByUserId = tool.UpdatedByUserId,
+                    UpdatedByUserName = tool.UpdatedByUserId == null
+                        ? null
+                        : db.Users
+                        .Where(user => user.Id == tool.UpdatedByUserId)
+                        .Select(user => user.UserName)
+                        .SingleOrDefault(),
+                })
+                    .SingleOrDefaultAsync(cancellationToken);
         }
 
         // Creates a new tool.

@@ -29,15 +29,24 @@ public sealed class MeasurementDetailsModel
 
     public string PerformedByUserId { get; init; } = string.Empty;
 
+    public string PerformedByUserName { get; init; } = string.Empty;
+
     public DateTimeOffset? VerifiedAtUtc { get; init; }
 
     public string? VerifiedByUserId { get; init; }
+
+    public string? VerifiedByUserName { get; init; }
 
     public DateTimeOffset CreatedAtUtc { get; init; }
 
     public string CreatedByUserId { get; init; } = string.Empty;
 
+    public string CreatedByUserName { get; init; } = string.Empty;
+
     public DateTimeOffset? UpdatedAtUtc { get; init; }
 
     public string? UpdatedByUserId { get; init; }
+
+    public string? UpdatedByUserName { get; init; }
 }
+

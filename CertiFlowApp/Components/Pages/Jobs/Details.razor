@@ -48,14 +48,14 @@ else
         <dt class="col-sm-3">Created</dt>
         <dd class="col-sm-9">@ApplicationDateTime.Format(_job.CreatedAtUtc)</dd>
         <dt class="col-sm-3">Created by</dt>
-        <dd class="col-sm-9">@_job.CreatedByUserId</dd>
+        <dd class="col-sm-9">@_job.CreatedByUserName</dd>
         <dt class="col-sm-3">Last updated</dt>
         <dd class="col-sm-9">@ApplicationDateTime.Format(_job.UpdatedAtUtc)</dd>
         <dt class="col-sm-3">Last updated by</dt>
         <dd class="col-sm-9">
-            @if (!string.IsNullOrWhiteSpace(_job.UpdatedByUserId))
+            @if (!string.IsNullOrWhiteSpace(_job.UpdatedByUserName))
             {
-                @_job.UpdatedByUserId
+                @_job.UpdatedByUserName
             }
             else
             {

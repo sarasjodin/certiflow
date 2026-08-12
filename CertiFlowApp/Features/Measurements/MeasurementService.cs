@@ -83,12 +83,37 @@ public class MeasurementService
                 Status = measurement.Status,
                 MeasuredAtUtc = measurement.MeasuredAtUtc,
                 PerformedByUserId = measurement.PerformedByUserId,
+                PerformedByUserName = db.Users
+                    .Where(user => user.Id == measurement.PerformedByUserId)
+                    .Select(user => user.UserName)
+                    .SingleOrDefault()
+                    ?? measurement.PerformedByUserId,
                 VerifiedAtUtc = measurement.VerifiedAtUtc,
                 VerifiedByUserId = measurement.VerifiedByUserId,
+                VerifiedByUserName = measurement.VerifiedByUserId == null
+                    ? null
+                    : db.Users
+                        .Where(user => user.Id == measurement.VerifiedByUserId)
+                        .Select(user => user.UserName)
+                        .SingleOrDefault(),
                 CreatedAtUtc = measurement.CreatedAtUtc,
                 CreatedByUserId = measurement.CreatedByUserId,
+
+                CreatedByUserName = db.Users
+                    .Where(user => user.Id == measurement.CreatedByUserId)
+                    .Select(user => user.UserName)
+                    .SingleOrDefault()
+                    ?? measurement.CreatedByUserId,
+
                 UpdatedAtUtc = measurement.UpdatedAtUtc,
-                UpdatedByUserId = measurement.UpdatedByUserId
+                UpdatedByUserId = measurement.UpdatedByUserId,
+
+                UpdatedByUserName = measurement.UpdatedByUserId == null
+                    ? null
+                    : db.Users
+                        .Where(user => user.Id == measurement.UpdatedByUserId)
+                        .Select(user => user.UserName)
+                        .SingleOrDefault(),
             })
             .SingleOrDefaultAsync(cancellationToken);
     }

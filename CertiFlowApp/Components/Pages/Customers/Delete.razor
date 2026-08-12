@@ -46,10 +46,10 @@ else
         <dd class="col-sm-9">@_customer.OrganizationNumber</dd>
 
         <dt class="col-sm-3">Related jobs</dt>
-        <dd class="col-sm-9">@_customer.Jobs.Count</dd>
+        <dd class="col-sm-9">@_customer.JobCount</dd>
     </dl>
 
-    @if (_customer.Jobs.Count > 0)
+    @if (_customer.JobCount > 0)
     {
         <div class="alert alert-info" role="alert">
             This customer cannot be deleted because it has related jobs.
@@ -60,7 +60,7 @@ else
 
         <button type="button"
                 class="btn btn-danger"
-                disabled="@(_isDeleting || _customer.Jobs.Count > 0)"
+                disabled="@(_isDeleting || _customer.JobCount > 0)"
                 @onclick="DeleteCustomerAsync">
             @(_isDeleting ? "Deleting..." : "Delete")
         </button>
@@ -77,7 +77,7 @@ else
     [Parameter]
     public Guid Id { get; set; }
 
-    private Customer? _customer;
+    private CustomerDetailsModel? _customer; // Customer details model to hold the customer information
     private bool _isLoading = true;
     private bool _isDeleting;
     private string? _errorMessage;

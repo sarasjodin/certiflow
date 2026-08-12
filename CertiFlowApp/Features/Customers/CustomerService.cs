@@ -8,11 +8,11 @@ namespace CertiFlowApp.Features.Customers
     // All asynchronous operations support CancellationToken to allow graceful request cancellation
     public class CustomerService
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
 
-        public CustomerService(AppDbContext dbContext)
+        public CustomerService(IDbContextFactory<AppDbContext> dbContextFactory)
         {
-            _dbContext = dbContext;
+            _dbContextFactory = dbContextFactory;
         }
 
         // Read-only queries 
@@ -21,23 +21,51 @@ namespace CertiFlowApp.Features.Customers
         public async Task<List<Customer>> GetAllAsync(
             CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Customers
+            await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.Customers
                 .AsNoTracking()
                 .OrderBy(customer => customer.Name)
                 .ToListAsync(cancellationToken);
         }
 
-        // Returns one customer, including its related jobs
-        public async Task<Customer?> GetByIdAsync(
+        // Returns customer data prepared for the details view
+        public async Task<CustomerDetailsModel?> GetByIdAsync(
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Customers
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.Customers
                 .AsNoTracking()
-                .Include(customer => customer.Jobs)
-                .SingleOrDefaultAsync(
-                    customer => customer.Id == id,
-                    cancellationToken);
+                .Where(customer => customer.Id == id)
+                .Select(customer => new CustomerDetailsModel
+                {
+                    Id = customer.Id,
+                    Name = customer.Name,
+                    OrganizationNumber = customer.OrganizationNumber,
+
+                    CreatedAtUtc = customer.CreatedAtUtc,
+                    CreatedByUserId = customer.CreatedByUserId,
+                    CreatedByUserName = db.Users
+                        .Where(user => user.Id == customer.CreatedByUserId)
+                        .Select(user => user.UserName)
+                        .SingleOrDefault()
+                        ?? customer.CreatedByUserId,
+
+                    UpdatedAtUtc = customer.UpdatedAtUtc,
+                    UpdatedByUserId = customer.UpdatedByUserId,
+                    UpdatedByUserName = customer.UpdatedByUserId == null
+                        ? null
+                        : db.Users
+                            .Where(user => user.Id == customer.UpdatedByUserId)
+                            .Select(user => user.UserName)
+                            .SingleOrDefault(),
+
+                    JobCount = customer.Jobs.Count
+                })
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
         // Creates a new customer.
@@ -45,12 +73,15 @@ namespace CertiFlowApp.Features.Customers
             CreateCustomerForm form,
             CancellationToken cancellationToken = default)
         {
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
             var name = form.Name.Trim();
 
             var organizationNumber = form.OrganizationNumber.Trim();
 
             var organizationNumberExists =
-                await _dbContext.Customers.AnyAsync(
+                await db.Customers.AnyAsync(
                     customer =>
                         customer.OrganizationNumber == organizationNumber,
                     cancellationToken);
@@ -68,8 +99,8 @@ namespace CertiFlowApp.Features.Customers
                 OrganizationNumber = organizationNumber
             };
 
-            _dbContext.Customers.Add(customer);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            db.Customers.Add(customer);
+            await db.SaveChangesAsync(cancellationToken);
 
             return customer;
         }
@@ -79,7 +110,10 @@ namespace CertiFlowApp.Features.Customers
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Customers
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.Customers
                 .AsNoTracking()
                 .Where(customer => customer.Id == id)
                 .Select(customer => new EditCustomerForm
@@ -96,7 +130,10 @@ namespace CertiFlowApp.Features.Customers
             EditCustomerForm form,
             CancellationToken cancellationToken = default)
         {
-            var customer = await _dbContext.Customers
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var customer = await db.Customers
                 .SingleOrDefaultAsync(
                     customer => customer.Id == form.Id,
                     cancellationToken);
@@ -112,7 +149,7 @@ namespace CertiFlowApp.Features.Customers
 
             // Check if another customer with the same organization number exists
             var organizationNumberExists =
-                await _dbContext.Customers.AnyAsync(
+                await db.Customers.AnyAsync(
                     otherCustomer =>
                         otherCustomer.Id != form.Id &&
                         otherCustomer.OrganizationNumber == organizationNumber,
@@ -127,7 +164,7 @@ namespace CertiFlowApp.Features.Customers
             customer.Name = name;
             customer.OrganizationNumber = organizationNumber;
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await db.SaveChangesAsync(cancellationToken);
 
             return true;
         }
@@ -137,7 +174,10 @@ namespace CertiFlowApp.Features.Customers
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            var customer = await _dbContext.Customers
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var customer = await db.Customers
                 .SingleOrDefaultAsync(
                     customer => customer.Id == id,
                     cancellationToken);
@@ -147,7 +187,7 @@ namespace CertiFlowApp.Features.Customers
                 return false;
             }
 
-            var hasJobs = await _dbContext.Jobs.AnyAsync(
+            var hasJobs = await db.Jobs.AnyAsync(
                 job => job.CustomerId == id,
                 cancellationToken);
 
@@ -157,8 +197,8 @@ namespace CertiFlowApp.Features.Customers
                     "The customer cannot be deleted because it has related jobs.");
             }
 
-            _dbContext.Customers.Remove(customer);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            db.Customers.Remove(customer);
+            await db.SaveChangesAsync(cancellationToken);
 
             return true;
         }
