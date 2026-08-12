@@ -153,6 +153,34 @@ namespace CertiFlowApp.Features.Tools
                 return false;
             }
 
+            var latestMeasurementAtUtc = await db.Measurements
+                .Where(measurement => measurement.ToolId == form.Id)
+                .MaxAsync(
+                    measurement => (DateTimeOffset?)measurement.MeasuredAtUtc,
+                    cancellationToken);
+
+            if (latestMeasurementAtUtc.HasValue)
+            {
+                // A calibration date cannot be removed when the tool
+                // has already been used for measurements
+                if (!form.CalibrationValidUntil.HasValue)
+                {
+                    throw new InvalidOperationException(
+                        "Calibration validity cannot be removed from a tool with existing measurements.");
+                }
+
+                var latestMeasurementDate =
+                    ApplicationDateTime.ToDateOnly(latestMeasurementAtUtc.Value);
+
+                // Existing measurements must be within
+                // the tool's calibration validity
+                if (form.CalibrationValidUntil.Value < latestMeasurementDate)
+                {
+                    throw new InvalidOperationException(
+                        "Calibration validity cannot be changed to a date before an existing measurement.");
+                }
+            }
+
             var name = form.Name.Trim();
             var serialNumber = form.SerialNumber.Trim();
             var toolType = form.ToolType.Trim();
@@ -224,8 +252,14 @@ namespace CertiFlowApp.Features.Tools
             await using var db =
                 await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
+            var today = ApplicationDateTime.Today(_timeProvider);
+
             return await db.Tools
                 .AsNoTracking()
+                .Where(tool =>
+                    tool.IsActive &&
+                    tool.CalibrationValidUntil.HasValue &&
+                    tool.CalibrationValidUntil.Value >= today)
                 .OrderBy(tool => tool.Name)
                 .ThenBy(tool => tool.SerialNumber)
                 .Select(tool => new ToolOption

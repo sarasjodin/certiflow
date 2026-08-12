@@ -1,7 +1,9 @@
 ﻿using CertiFlowApp.Data;
+using CertiFlowApp.Features.Tools;
 using CertiFlowApp.Models;
 using CertiFlowApp.Models.Enums;
 using CertiFlowApp.Services.CurrentUser;
+using CertiFlowApp.Services.DateTime;
 using Microsoft.EntityFrameworkCore;
 
 namespace CertiFlowApp.Features.Measurements;
@@ -148,14 +150,27 @@ public class MeasurementService
                 "A tool must be selected.");
         }
 
-        var toolExists = await db.Tools.AnyAsync(
-            tool => tool.Id == form.ToolId.Value,
-            cancellationToken);
+        var tool = await db.Tools
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                tool => tool.Id == form.ToolId.Value,
+                cancellationToken);
 
-        if (!toolExists)
+        if (tool is null)
         {
             throw new InvalidOperationException(
                 "The selected tool does not exist.");
+        }
+
+        var today = ApplicationDateTime.Today(_timeProvider);
+
+        if (!tool.IsActive ||
+            ToolCalibrationRules.GetStatus(
+                tool.CalibrationValidUntil,
+                today) != CalibrationStatus.Valid)
+        {
+            throw new InvalidOperationException(
+                "The selected tool is not available for measurement.");
         }
 
         // Check that measurement value is provided

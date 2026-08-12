@@ -254,7 +254,7 @@ namespace CertiFlowApp.Features.Jobs
             CancellationToken cancellationToken = default)
         {
             await using var db =
-            await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
             return await db.Jobs
                 .AsNoTracking()
