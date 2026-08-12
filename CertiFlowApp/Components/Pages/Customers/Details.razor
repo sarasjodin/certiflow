@@ -1,7 +1,6 @@
 ﻿@page "/customers/{Id:guid}"
 @rendermode InteractiveServer
 @using CertiFlowApp.Features.Customers
-@using CertiFlowApp.Models
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 @inject CustomerService CustomerService
@@ -36,7 +35,7 @@ else
         </dd>
 
         <dt class="col-sm-3">Created by</dt>
-        <dd class="col-sm-9">@_customer.CreatedByUserId</dd>
+        <dd class="col-sm-9">@_customer.CreatedByUserName</dd>
 
         <dt class="col-sm-3">Last updated</dt>
         <dd class="col-sm-9">
@@ -53,7 +52,7 @@ else
         </dd>
 
         <dt class="col-sm-3">Jobs</dt>
-        <dd class="col-sm-9">@_customer.Jobs.Count</dd>
+        <dd class="col-sm-9">@_customer.JobCount</dd>
     </dl>
 
     <div class="d-flex gap-2">
@@ -77,7 +76,7 @@ else
     [Parameter]
     public Guid Id { get; set; }
 
-    private Customer? _customer;
+    private CustomerDetailsModel? _customer; // Customer details model to hold the customer information
     private bool _isLoading = true;
 
     protected override async Task OnParametersSetAsync()

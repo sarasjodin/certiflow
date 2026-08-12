@@ -61,10 +61,27 @@ namespace CertiFlowApp.Features.Jobs
                     CertificateNumber = job.CertificateNumber,
                     ApprovedAtUtc = job.ApprovedAtUtc,
                     ApprovedByUserId = job.ApprovedByUserId,
+                    ApprovedByUserName = job.ApprovedByUserId == null
+                        ? null
+                        : db.Users
+                            .Where(user => user.Id == job.ApprovedByUserId)
+                            .Select(user => user.UserName)
+                            .SingleOrDefault(),
                     CreatedAtUtc = job.CreatedAtUtc,
                     CreatedByUserId = job.CreatedByUserId,
+                    CreatedByUserName = db.Users
+                        .Where(user => user.Id == job.CreatedByUserId)
+                        .Select(user => user.UserName)
+                        .SingleOrDefault()
+                        ?? job.CreatedByUserId,
                     UpdatedAtUtc = job.UpdatedAtUtc,
                     UpdatedByUserId = job.UpdatedByUserId,
+                    UpdatedByUserName = job.UpdatedByUserId == null
+                        ? null
+                        : db.Users
+                            .Where(user => user.Id == job.UpdatedByUserId)
+                            .Select(user => user.UserName)
+                            .SingleOrDefault(),
 
                     // Get the count of related measurement and deviations to this job
                     MeasurementCount = job.Measurements.Count,

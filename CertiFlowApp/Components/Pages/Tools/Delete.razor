@@ -64,10 +64,10 @@ else
         <dd class="col-sm-9">@_tool.IsActive</dd>
 
         <dt class="col-sm-3">Related measurements</dt>
-        <dd class="col-sm-9">@_tool.Measurements.Count</dd>
+        <dd class="col-sm-9">@_tool.MeasurementCount</dd>
     </dl>
 
-    @if (_tool.Measurements.Count > 0)
+    @if (_tool.MeasurementCount > 0)
     {
         <div class="alert alert-info" role="alert">
             This tool cannot be deleted because it has related measurements.
@@ -78,7 +78,7 @@ else
 
         <button type="button"
                 class="btn btn-danger"
-                disabled="@(_isDeleting || _tool.Measurements.Count > 0)"
+                disabled="@(_isDeleting || _tool.MeasurementCount > 0)"
                 @onclick="DeleteToolAsync">
             @(_isDeleting ? "Deleting..." : "Delete")
         </button>
@@ -94,7 +94,7 @@ else
     [Parameter]
     public Guid Id { get; set; }
 
-    private Tool? _tool;
+    private ToolDetailsModel? _tool;
     private bool _isLoading = true;
     private bool _isDeleting;
     private string? _errorMessage;

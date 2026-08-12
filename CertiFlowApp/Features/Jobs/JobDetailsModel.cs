@@ -25,13 +25,19 @@ public sealed class JobDetailsModel
 
     public string? ApprovedByUserId { get; init; }
 
+    public string? ApprovedByUserName { get; init; }
+
     public DateTimeOffset CreatedAtUtc { get; init; }
 
     public string CreatedByUserId { get; init; } = string.Empty;
 
+    public string CreatedByUserName { get; init; } = string.Empty;
+
     public DateTimeOffset? UpdatedAtUtc { get; init; }
 
     public string? UpdatedByUserId { get; init; }
+
+    public string? UpdatedByUserName { get; init; }
 
 
     public int MeasurementCount { get; init; }

@@ -55,7 +55,7 @@ else
         </dd>
 
         <dt class="col-sm-3">Created by</dt>
-        <dd class="col-sm-9">@_tool.CreatedByUserId</dd>
+        <dd class="col-sm-9">@_tool.CreatedByUserName</dd>
 
         <dt class="col-sm-3">Last updated</dt>
         <dd class="col-sm-9">
@@ -70,7 +70,7 @@ else
         </dd>
 
         <dt class="col-sm-3">Measurements</dt>
-        <dd class="col-sm-9">@_tool.Measurements.Count</dd>
+        <dd class="col-sm-9">@_tool.MeasurementCount</dd>
     </dl>
 
     <div class="d-flex gap-2">
@@ -95,7 +95,7 @@ else
     [Parameter]
     public Guid Id { get; set; }
 
-    private Tool? _tool;
+    private ToolDetailsModel? _tool;
     private bool _isLoading = true;
 
     protected override async Task OnParametersSetAsync()
