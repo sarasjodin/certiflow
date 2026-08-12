@@ -42,4 +42,14 @@ public static class ApplicationDateTime
 
         return DateOnly.FromDateTime(localNow.DateTime);
     }
+
+    // Converts a UTC timestamp to a calendar date in the application time zone
+    public static DateOnly ToDateOnly(DateTimeOffset value)
+    {
+        var localTime = TimeZoneInfo.ConvertTime(
+            value,
+            StockholmTimeZone);
+
+        return DateOnly.FromDateTime(localTime.DateTime);
+    }
 }
