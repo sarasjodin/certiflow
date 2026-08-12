@@ -17,4 +17,6 @@ public sealed class JobListItem
     public string CustomerName { get; init; } = string.Empty;
 
     public JobStatus Status { get; init; }
+
+    public int MeasurementCount { get; init; }
 }
