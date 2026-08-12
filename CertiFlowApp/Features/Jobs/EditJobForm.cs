@@ -6,12 +6,11 @@ namespace CertiFlowApp.Features.Jobs;
 public sealed class EditJobForm
 {
     // form.Id = Id identifies the existing job but is not editable by the user
-    // Except for the Id, all other attributes are the same as in the CreateJobForm
+    // Except for the Id & CustomerName, all other attributes are the same as in the CreateJobForm
     public Guid Id { get; set; }
 
-    [Required(ErrorMessage = "Customer is required.")]
-    [Display(Name = "Customer")]
-    public Guid? CustomerId { get; set; }
+    // Only used to display the customer in the edit view
+    public string CustomerName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Job number is required.")]
     [Display(Name = "Job number")]

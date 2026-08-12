@@ -25,20 +25,6 @@ else if (_form is null)
         Back to jobs
     </a>
 }
-else if (_customers.Count == 0)
-{
-    <div class="alert alert-info" role="alert">
-        A customer must exist before a job can be edited.
-    </div>
-
-    <a class="btn btn-primary" href="/customers/create">
-        Create customer
-    </a>
-
-    <a class="btn btn-secondary" href="/jobs">
-        Back to jobs
-    </a>
-}
 else
 {
     <h1>Edit job</h1>
@@ -57,25 +43,10 @@ else
     <DataAnnotationsValidator />
 
         <div class="mb-3">
-            <label for="customer" class="form-label">
-                Customer
-            </label>
-
-            <InputSelect id="customer"
-                         class="form-select"
-                         @bind-Value="_form.CustomerId">
-
-                <option value="">Select customer</option>
-
-                @foreach (var customer in _customers)
-                {
-                    <option value="@customer.Id">
-                        @customer.Name
-                    </option>
-                }
-            </InputSelect>
-
-            <ValidationMessage For="() => _form.CustomerId" />
+            <label class="form-label">Customer</label>
+            <div class="form-control-plaintext">
+                @_form.CustomerName
+            </div>
         </div>
 
         <div class="mb-3">
@@ -138,7 +109,6 @@ else
     private bool _isLoading = true;
     private bool _isSaving;
     private string? _errorMessage;
-    private List<Customer> _customers = [];
     
     protected override async Task OnParametersSetAsync()
     {
@@ -146,7 +116,6 @@ else
 
         try
         {
-            _customers = await CustomerService.GetAllAsync();
             _form = await JobService.GetEditFormAsync(Id);
         }
         catch (Exception)
