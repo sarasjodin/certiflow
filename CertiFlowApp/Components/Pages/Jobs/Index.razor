@@ -42,7 +42,7 @@ else
                 <th>Title</th>
                 <th>Customer</th>
                 <th>Job status</th>
-                <th>Actions</th>
+                <th class="text-center">Actions</th>
             </tr>
         </thead>
 
@@ -55,20 +55,22 @@ else
                     <td>@job.CustomerName</td>
                     <td>@job.Status</td>
                     <td>
-                        <a class="btn btn-sm btn-outline-primary"
-                           href="@($"/jobs/{job.Id}")">
-                            Details
-                        </a>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a class="btn btn-sm btn-outline-primary"
+                               href="@($"/jobs/{job.Id}")">
+                                Details
+                            </a>
 
-                        <a class="btn btn-sm btn-outline-secondary"
-                           href="@($"/jobs/{job.Id}/edit")">
-                            Edit
-                        </a>
+                            <a class="btn btn-sm btn-outline-secondary"
+                               href="@($"/jobs/{job.Id}/edit")">
+                                Edit
+                            </a>
 
-                        <a class="btn btn-sm btn-outline-danger"
-                           href="@($"/jobs/{job.Id}/delete")">
-                            Delete
-                        </a>
+                            <a class="btn btn-sm btn-outline-danger"
+                               href="@($"/jobs/{job.Id}/delete")">
+                                Delete
+                            </a>
+                        </div>
                     </td>
                 </tr>
             }

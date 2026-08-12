@@ -73,17 +73,20 @@ else
         </dd>
     </dl>
 
-    <button type="button"
-            class="btn btn-danger"
-            disabled="@_isDeleting"
-            @onclick="DeleteMeasurementAsync">
-        @(_isDeleting ? "Deleting..." : "Delete")
-    </button>
+    <div class="d-flex gap-2">
 
-    <a class="btn btn-secondary"
-       href="@($"/measurements/{Id}")">
-        Cancel
-    </a>
+        <button type="button"
+                class="btn btn-danger"
+                disabled="@_isDeleting"
+                @onclick="DeleteMeasurementAsync">
+            @(_isDeleting ? "Deleting..." : "Delete")
+        </button>
+
+        <a class="btn btn-secondary"
+           href="@($"/measurements/{Id}")">
+            Cancel
+        </a>
+    </div>
 }
 
 @code {

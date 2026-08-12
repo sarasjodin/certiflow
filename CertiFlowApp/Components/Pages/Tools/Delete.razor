@@ -74,18 +74,21 @@ else
         </div>
     }
 
-    <button type="button"
-            class="btn btn-danger"
-            disabled="@(_isDeleting || _tool.Measurements.Count > 0)"
-            @onclick="DeleteToolAsync">
-        @(_isDeleting ? "Deleting..." : "Delete")
-    </button>
+    <div class="d-flex gap-2">
 
-    <a class="btn btn-secondary"
-       href="@($"/tools/{Id}")">
-        Cancel
-    </a>
-}
+        <button type="button"
+                class="btn btn-danger"
+                disabled="@(_isDeleting || _tool.Measurements.Count > 0)"
+                @onclick="DeleteToolAsync">
+            @(_isDeleting ? "Deleting..." : "Delete")
+        </button>
+
+        <a class="btn btn-secondary"
+           href="@($"/tools/{Id}")">
+            Cancel
+        </a>
+    </div>
+    }
 
 @code {
     [Parameter]

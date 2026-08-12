@@ -66,19 +66,22 @@ else
         </div>
     }
 
-    <button type="button"
-            class="btn btn-danger"
-            disabled="@(_isDeleting ||
-                    _job.MeasurementCount > 0 ||
-                    _job.DeviationCount > 0)"
-            @onclick="DeleteJobAsync">
-        @(_isDeleting ? "Deleting..." : "Delete")
-    </button>
+    <div class="d-flex gap-2">
 
-    <a class="btn btn-secondary"
-       href="@($"/jobs/{Id}")">
-        Cancel
-    </a>
+        <button type="button"
+                class="btn btn-danger"
+                disabled="@(_isDeleting ||
+                        _job.MeasurementCount > 0 ||
+                        _job.DeviationCount > 0)"
+                @onclick="DeleteJobAsync">
+            @(_isDeleting ? "Deleting..." : "Delete")
+        </button>
+
+        <a class="btn btn-secondary"
+           href="@($"/jobs/{Id}")">
+            Cancel
+        </a>
+    </div>
 }
 
 @code {
