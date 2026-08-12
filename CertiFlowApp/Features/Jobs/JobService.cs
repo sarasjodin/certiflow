@@ -91,13 +91,6 @@ namespace CertiFlowApp.Features.Jobs
             var title = form.Title.Trim();
             var description = form.Description?.Trim();
 
-            // Check if a customer is selected
-            if (!form.CustomerId.HasValue)
-            {
-                throw new InvalidOperationException(
-                    "A customer must be selected.");
-            }
-
             // Check if jobNumber already exists
             var jobNumberExists = await db.Jobs.AnyAsync(
                 job => job.JobNumber == jobNumber,
@@ -109,9 +102,18 @@ namespace CertiFlowApp.Features.Jobs
                     "A job with this job number already exists.");
             }
 
+            // CustomerId is nullable in the form but a Job must always have a customer
+            if (!form.CustomerId.HasValue)
+            {
+                throw new InvalidOperationException(
+                    "A customer must be selected.");
+            }
+
+            var customerId = form.CustomerId.Value;
+
             // Check if the customer exists before creating the job
             var customerExists = await db.Customers.AnyAsync(
-                customer => customer.Id == form.CustomerId,
+                customer => customer.Id == customerId,
                 cancellationToken);
 
             if (!customerExists)
@@ -124,7 +126,7 @@ namespace CertiFlowApp.Features.Jobs
             var job = new Job
             {
                 Id = Guid.NewGuid(),
-                CustomerId = form.CustomerId.Value,
+                CustomerId = customerId,
                 JobNumber = jobNumber,
                 Title = title,
                 Description = description,
@@ -155,7 +157,7 @@ namespace CertiFlowApp.Features.Jobs
                 .Select(job => new EditJobForm
                 {
                     Id = job.Id,
-                    CustomerId = job.CustomerId,
+                    CustomerName = job.Customer.Name,
                     JobNumber = job.JobNumber,
                     Title = job.Title,
                     Description = job.Description
@@ -171,13 +173,6 @@ namespace CertiFlowApp.Features.Jobs
             await using var db =
                 await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-            // Check if a customer is selected
-            if (!form.CustomerId.HasValue)
-            {
-                throw new InvalidOperationException(
-                    "A customer must be selected.");
-            }
-
             // Check if jobNumber exists for another job
             var jobNumberExists = await db.Jobs.AnyAsync(
                 otherJob =>
@@ -189,17 +184,6 @@ namespace CertiFlowApp.Features.Jobs
             {
                 throw new InvalidOperationException(
                     "A job with this job number already exists.");
-            }
-
-            // Check if the customer exists before updating the job
-            var customerExists = await db.Customers.AnyAsync(
-               customer => customer.Id == form.CustomerId,
-               cancellationToken);
-
-            if (!customerExists)
-            {
-                throw new InvalidOperationException(
-                    "The selected customer does not exist.");
             }
 
             // Load the existing job
@@ -214,7 +198,6 @@ namespace CertiFlowApp.Features.Jobs
                 return false;
             }
 
-            job.CustomerId = form.CustomerId.Value;
             job.JobNumber = form.JobNumber.Trim();
             job.Title = form.Title.Trim();
             job.Description = form.Description?.Trim();
