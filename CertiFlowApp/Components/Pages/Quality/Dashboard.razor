@@ -1,0 +1,125 @@
+﻿@page "/quality/dashboard"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject JobService JobService
+
+<PageTitle>Quality Dashboard</PageTitle>
+
+<h1>Quality Dashboard</h1>
+
+@if (_isLoading)
+{
+    <p>Loading jobs...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else 
+{
+    <div class="d-flex gap-3 mb-4 justify-content-left">
+        <div class="card p-3 text-center dashboard-card">
+            <span class="text-muted small">CURRENT</span>
+            <strong>Draft jobs</strong>
+            <span class="fs-3">@DraftJobCount</span>
+        </div>
+
+        <div class="card p-3 text-center dashboard-card">
+            <span class="text-muted small">CURRENT</span>
+            <strong>In progress</strong>
+            <span class="fs-3">@InProgressJobCount</span>
+        </div>
+
+        <div class="card p-3 text-center dashboard-card">
+            <span class="text-muted small">CURRENT</span>
+            <strong>Approved jobs</strong>
+            <span class="fs-3">@ApprovedJobCount</span>
+        </div>
+    </div>
+
+    @if (_jobs.Count == 0)
+    {
+        <div class="alert alert-info" role="alert">
+            No jobs have been created.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Job</th>
+                    <th>Title</th>
+                    <th>Customer</th>
+                    <th>Measurements</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var job in _jobs)
+                {
+                    <tr>
+                        <td>@job.JobNumber</td>
+                        <td>@job.Title</td>
+                        <td>@job.CustomerName</td>
+                        <td>@job.MeasurementCount</td>
+                        <td>@job.Status</td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="@($"/jobs/{job.Id}")">
+                                    Job details
+                                </a>
+                              
+                                <a class="btn btn-sm btn-primary"
+                                    href="@($"/measurements/create?jobId={job.Id}")">
+                                    Add measurement
+                                </a>
+                               
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private bool _isLoading = true;
+    private List<JobListItem> _jobs = []; // Job list items used by the quality dashboard
+
+    private string? _errorMessage;
+
+    private int DraftJobCount =>
+        _jobs.Count(job => job.Status == JobStatus.Draft);
+
+    private int InProgressJobCount =>
+        _jobs.Count(job => job.Status == JobStatus.InProgress);
+
+    private int ApprovedJobCount =>
+        _jobs.Count(job => job.Status == JobStatus.Approved);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _jobs = await JobService.GetAllAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The quality dashboard could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

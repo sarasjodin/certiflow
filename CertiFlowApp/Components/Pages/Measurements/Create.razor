@@ -145,21 +145,27 @@ else
 
         </div>
 
-        <button type="submit"
-                class="btn btn-primary"
-                disabled="@_isSaving">
-            @(_isSaving ? "Saving..." : "Create")
-        </button>
+        <div class="d-flex gap-2">
 
-        <a class="btn btn-secondary" href="/measurements">
-            Cancel
-        </a>
+            <button type="submit"
+                    class="btn btn-primary"
+                    disabled="@_isSaving">
+                @(_isSaving ? "Saving..." : "Create")
+            </button>
+
+            <a class="btn btn-secondary" href="/measurements">
+                Cancel
+            </a>
+        </div>
     </EditForm>
 }
 
 
 
 @code {
+    [SupplyParameterFromQuery(Name = "jobId")]
+    public Guid? JobId { get; set; }
+
     private readonly CreateMeasurementForm _form = new();
     private bool _isSaving;
     private string? _errorMessage;
@@ -173,6 +179,13 @@ else
         {
             _jobs = await JobService.GetOptionsAsync();
             _tools = await ToolService.GetOptionsAsync();
+
+            // Used by quality dashboard to select a specific job
+            // when clicking button `Add measurement`
+            if (JobId.HasValue)
+            {
+                _form.JobId = JobId.Value;
+            }
         }
         catch (Exception)
         {

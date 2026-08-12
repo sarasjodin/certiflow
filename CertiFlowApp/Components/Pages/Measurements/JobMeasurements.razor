@@ -1,0 +1,140 @@
+﻿@page "/jobs/{JobId:guid}/measurements"
+@rendermode InteractiveServer
+@using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Features.Measurements
+@using CertiFlowApp.Services.DateTime
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject JobService JobService
+@inject MeasurementService MeasurementService
+
+<PageTitle>Job measurements</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading measurements...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (_job is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Job not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/jobs">
+        Back to jobs
+    </a>
+}
+else
+{
+    <h1>Measurements</h1>
+
+    <p>
+        Job: <strong>@_job.JobNumber - @_job.Title</strong><br />
+        Customer: @_job.CustomerName
+    </p>
+
+    @if (_measurements.Count == 0)
+    {
+        <div class="alert alert-info" role="alert">
+            No measurements have been registered for this job.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Value</th>
+                    <th>Tool</th>
+                    <th>Status</th>
+                    <th>Measured at</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var measurement in _measurements)
+                {
+                    <tr>
+                        <td>@measurement.Value @measurement.Unit</td>
+
+                        <td>
+                            @measurement.ToolName
+                            (@measurement.ToolSerialNumber)
+                        </td>
+
+                        <td>@measurement.Status</td>
+
+                        <td>
+                            @ApplicationDateTime.Format(measurement.MeasuredAtUtc)
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="@($"/measurements/{measurement.Id}")">
+                                    View
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="d-flex gap-2">
+
+        <a class="btn btn-primary"
+           href="@($"/measurements/create?jobId={_job.Id}")">
+            Add measurement
+        </a>
+
+        <a class="btn btn-secondary"
+           href="@($"/jobs/{_job.Id}")">
+            Back to job
+        </a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid JobId { get; set; }
+
+    private JobDetailsModel? _job;
+    private List<MeasurementListItem> _measurements = [];
+
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            _job = await JobService.GetByIdAsync(JobId);
+
+            if (_job is not null)
+            {
+                _measurements =
+                    await MeasurementService.GetByJobIdAsync(JobId);
+            }
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The measurements could not be loaded.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

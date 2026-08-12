@@ -91,6 +91,31 @@ public class MeasurementService
             .SingleOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<List<MeasurementListItem>> GetByJobIdAsync(
+    Guid jobId,
+    CancellationToken cancellationToken = default)
+    {
+        await using var db =
+            await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await db.Measurements
+            .AsNoTracking()
+            .Where(measurement => measurement.JobId == jobId)
+            .OrderByDescending(measurement => measurement.MeasuredAtUtc)
+            .Select(measurement => new MeasurementListItem
+            {
+                Id = measurement.Id,
+                JobNumber = measurement.Job.JobNumber,
+                ToolName = measurement.Tool.Name,
+                ToolSerialNumber = measurement.Tool.SerialNumber,
+                Value = measurement.Value,
+                Unit = measurement.Unit,
+                Status = measurement.Status,
+                MeasuredAtUtc = measurement.MeasuredAtUtc
+            })
+            .ToListAsync(cancellationToken);
+    }
+
     // Creates a new measurement
     public async Task<Measurement> CreateAsync(
         CreateMeasurementForm form,

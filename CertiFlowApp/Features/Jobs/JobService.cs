@@ -31,7 +31,8 @@ namespace CertiFlowApp.Features.Jobs
                     JobNumber = job.JobNumber,
                     Title = job.Title,
                     CustomerName = job.Customer.Name,
-                    Status = job.Status
+                    Status = job.Status,
+                    MeasurementCount = job.Measurements.Count
                 })
 
             .ToListAsync(cancellationToken);
@@ -64,9 +65,13 @@ namespace CertiFlowApp.Features.Jobs
                     CreatedByUserId = job.CreatedByUserId,
                     UpdatedAtUtc = job.UpdatedAtUtc,
                     UpdatedByUserId = job.UpdatedByUserId,
+
+                    // Get the count of related measurement and deviations to this job
                     MeasurementCount = job.Measurements.Count,
                     DeviationCount = job.Deviations.Count
                 })
+
+
             // Expected outcome of Details view =
             // A job ID should identify max one job
             // Returns null when the requested job (id) does not exist
