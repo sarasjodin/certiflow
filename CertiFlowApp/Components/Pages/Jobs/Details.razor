@@ -1,6 +1,7 @@
 ﻿@page "/jobs/{Id:guid}"
 @rendermode InteractiveServer
 @using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Features.Measurements
 @using CertiFlowApp.Services.DateTime
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
@@ -65,19 +66,45 @@ else
         <dd class="col-sm-9">@_job.MeasurementCount</dd>
     </dl>
 
-    <a class="btn btn-primary"
-       href="@($"/jobs/{_job.Id}/edit")">
-        Edit
-    </a>
 
-    <a class="btn btn-danger"
-       href="@($"/jobs/{_job.Id}/delete")">
-        Delete
-    </a>
+    @if (_job.MeasurementCount == 0)
+    {
+        <div class="alert alert-info" role="alert">
+            No measurements have been registered for this job.
+        </div>
+    }
 
-    <a class="btn btn-secondary" href="/jobs">
-        Back to jobs
-    </a>
+    <div class="d-flex gap-2">
+        @if (_job.MeasurementCount > 0)
+        {
+            <a class="btn btn-outline-primary"
+                href="@($"/jobs/{_job.Id}/measurements")">
+                View measurements
+            </a>
+        }
+
+        <a class="btn btn-primary"
+            href="@($"/measurements/create?jobId={_job.Id}")">
+            Add measurement
+        </a>
+
+        <div class="d-flex gap-2">
+            <a class="btn btn-primary"
+                href="@($"/jobs/{_job.Id}/edit")">
+                Edit job
+            </a>
+
+            <a class="btn btn-danger"
+                href="@($"/jobs/{_job.Id}/delete")">
+                Delete job
+            </a>
+
+            <a class="btn btn-secondary" href="/quality/dashboard">
+                Back to Quality Dashboard
+            </a>
+    
+        </div>
+    </div>
 }
 
 @code {
