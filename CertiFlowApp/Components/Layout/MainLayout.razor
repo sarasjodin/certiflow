@@ -4,16 +4,17 @@
 @inject IConfiguration Configuration
 @inject IWebHostEnvironment Environment
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<AuthorizeView>
+    <Authorized Context="authContext">
 
-    <main class="main-layout">
-        <div class="top-row px-4">
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
 
-            <AuthorizeView>
-                <Authorized Context="authContext">
+            <main class="main-layout">
+                <div class="top-row px-4 d-flex justify-content-end align-items-center">
+
                     <span>
                         Welcome, @authContext.User.Identity?.Name
                     </span>
@@ -24,22 +25,44 @@
                             Logout
                         </button>
                     </form>
-                </Authorized>
+                
+                </div>
 
-                <NotAuthorized>
-                    <a href="/Identity/Account/Login">Login</a>
-                </NotAuthorized>
-            </AuthorizeView>
+                <article class="main-content px-4">
+                    @Body
+                </article>
+
+                <footer class="small text-muted text-end px-4 py-2 mt-auto">
+                    CertiFlow v@(Configuration["AppInfo:Version"]) · @Environment.EnvironmentName
+                </footer>
+            </main>
         </div>
+    </Authorized>
 
-        <article class="main-content px-4">
-            @Body
-        </article>
-        <footer class="small text-muted text-end px-4 py-2">
-            CertiFlow v@(Configuration["AppInfo:Version"]) · @Environment.EnvironmentName
-        </footer>
-    </main>
-</div>
+    <NotAuthorized>
+        <main class="main-layout d-flex flex-column min-vh-100">
+            <div class="top-row px-4 d-flex justify-content-between align-items-center">
+                <a class="navbar-brand certiflow-brand fw-bold fs-3 text-decoration-none"
+                   href="/">
+                    CertiFlow
+                </a>
+
+                <a class="btn btn-primary"
+                   href="/Identity/Account/Login">
+                    Login
+                </a>
+            </div>
+
+            <article class="main-content px-4">
+                @Body
+            </article>
+
+            <footer class="small text-muted text-end px-4 py-2 mt-auto">
+                CertiFlow v@(Configuration["AppInfo:Version"]) · @Environment.EnvironmentName
+            </footer>
+        </main>
+    </NotAuthorized>
+</AuthorizeView>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

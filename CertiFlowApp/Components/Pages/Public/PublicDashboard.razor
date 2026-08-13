@@ -10,16 +10,29 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Home</PageTitle>
+<div class="container py-4">
 
-<h1>Public Dashboard</h1>
-<p>
-    Welcome to CertiFlow's public dashboard.
-    Here you can view public statistics.
-</p>
+    <h1 class="mb-3">Quality overview</h1>
 
-<p>
-    Log in to manage customers, jobs, tools and measurements.
-</p>
+    <p class="lead mb-4">
+        Quality control and measurement management.
+    </p>
+
+    <div class="row mb-3">
+        <div class="col-md-7">
+            <p class="mb-0">
+                This public dashboard provides an overview of current quality data.
+            </p>
+        </div>
+
+        <div class="col-md-5 d-flex justify-content-end">
+            <p class="mb-0">
+                <em>
+                    Log in to manage customers, jobs, tools and measurements.
+                </em>
+            </p>
+        </div>
+    </div>
 
 @if (_isLoading)
 {
@@ -39,33 +52,51 @@ else if (_dashboard is null)
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Approved jobs</th>
-                <th>Registered measurements</th>
-                <th>Available tools*</th>
-            </tr>
-        </thead>
+    <div class="row g-4 mb-4">        
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="text-muted text-uppercase mb-2">
+                        Current
+                    </div>
+                    <h5 class="card-title">Approved jobs</h5>
+                    <p class="display-6 mb-0">@_dashboard.ApprovedJobCount</p>
+                </div>
+            </div>
+        </div>
 
-        <tbody>
-          
-            <tr>
-                <td>@_dashboard.ApprovedJobCount</td>
-                <td>@_dashboard.MeasurementCount</td>
-                <td>@_dashboard.AvailableToolCount</td>
-            </tr>
-           
-        </tbody>
-    </table>
-    <p>
-        * Available tools are active tools with a valid calibration.
-        Tools that are inactive or have an expired or missing calibration date
-        are not counted as available.
-    </p>
-    <p class="small text-muted text-start">
-        Last updated: @ApplicationDateTime.Format(_lastUpdatedUtc)
-    </p>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="text-muted text-uppercase mb-2">
+                        Current
+                    </div>
+                    <h5 class="card-title">Registered measurements</h5>
+                    <p class="display-6 mb-0">@_dashboard.MeasurementCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="text-muted text-uppercase mb-2">
+                        Current
+                    </div>
+                    <h5 class="card-title">Available tools</h5>
+                    <p class="display-6 mb-0">@_dashboard.AvailableToolCount</p>
+                </div>
+            </div>
+        </div>
+        <p>
+            * Available tools are active tools with a valid calibration.
+            Tools that are inactive or have an expired or missing calibration date
+            are not counted as available.
+        </p>
+        <p class="small text-muted text-start mb-4">
+            Last updated: @ApplicationDateTime.Format(_lastUpdatedUtc)
+        </p>
+    </div>
 }
 
 @code {
@@ -117,4 +148,5 @@ else
         }
     }
 }
+</div>
 
