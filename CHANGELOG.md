@@ -8,10 +8,37 @@ This project adheres to Semantic Versioning.
 
 ## [Unreleased]
 
+### Future development
+
+- Administrator management of user roles
+- Extended verification and approval workflows
+- Client-specific functionality
+- Further Quality Dashboard improvements
+
 ### Planned
-- Role-based authorization for Operator (maybe also Verifier and Approver)
+
+- Fixes identified during functional testing
 
 ---
+
+## [0.6.0] - 2026-08-13
+
+### Added
+
+- Role-based authorization for application roles
+- Pending account page for users without an assigned role
+- Authorization policies for internal and approval workflows
+
+### Changed
+
+- Restricted CRUD and administration pages based on roles
+- Authenticated internal users are redirected to the Quality Dashboard
+- Improved public and authenticated layouts
+- Redesigned public dashboard with statistic cards
+- Improved delete handling for related data
+
+---
+
 ## [0.5.0] - 2026-08-11
 
 ### Added
