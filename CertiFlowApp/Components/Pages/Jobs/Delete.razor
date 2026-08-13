@@ -34,54 +34,56 @@ else
         </div>
     }
 
+    @if (_job.MeasurementCount > 0 || _job.DeviationCount > 0)
+    {
+        <div class="alert alert-info" role="alert">
+            This job cannot be deleted because it has related measurements or deviations.
+        </div>
+    }
+    else
+    {
     <div class="alert alert-warning" role="alert">
         Are you sure you want to delete this job?
     </div>
-
-    <dl class="row">
-        <dt class="col-sm-3">Job number</dt>
-        <dd class="col-sm-9">@_job.JobNumber</dd>
-
-        <dt class="col-sm-3">Title</dt>
-        <dd class="col-sm-9">@_job.Title</dd>
-
-        <dt class="col-sm-3">Customer</dt>
-        <dd class="col-sm-9">@_job.CustomerName</dd>
-
-        <dt class="col-sm-3">Description</dt>
-        <dd class="col-sm-9">@_job.Description</dd>
-
-        <dt class="col-sm-3">Approved at</dt>
-        <dd class="col-sm-9">@ApplicationDateTime.Format(_job.ApprovedAtUtc)</dd>
-        <dt class="col-sm-3">Related measurements</dt>
-        <dd class="col-sm-9">@_job.MeasurementCount</dd>
-        <dt class="col-sm-3">Related deviations</dt>
-        <dd class="col-sm-9">@_job.DeviationCount</dd>
-    </dl>
-
-    @if (_job.MeasurementCount > 0)
-    {
-        <div class="alert alert-info" role="alert">
-            This job cannot be deleted because it has related measurements.
-        </div>
     }
+<dl class="row">
+    <dt class="col-sm-3">Job number</dt>
+    <dd class="col-sm-9">@_job.JobNumber</dd>
 
-    <div class="d-flex gap-2">
+    <dt class="col-sm-3">Title</dt>
+    <dd class="col-sm-9">@_job.Title</dd>
 
+    <dt class="col-sm-3">Customer</dt>
+    <dd class="col-sm-9">@_job.CustomerName</dd>
+
+    <dt class="col-sm-3">Description</dt>
+    <dd class="col-sm-9">@_job.Description</dd>
+
+    <dt class="col-sm-3">Approved at</dt>
+    <dd class="col-sm-9">@ApplicationDateTime.Format(_job.ApprovedAtUtc)</dd>
+    <dt class="col-sm-3">Related measurements</dt>
+    <dd class="col-sm-9">@_job.MeasurementCount</dd>
+    <dt class="col-sm-3">Related deviations</dt>
+    <dd class="col-sm-9">@_job.DeviationCount</dd>
+</dl>
+
+<div class="d-flex gap-2">
+    @if (_job.MeasurementCount == 0 && _job.DeviationCount == 0)
+    {
         <button type="button"
-                class="btn btn-danger"
-                disabled="@(_isDeleting ||
-                        _job.MeasurementCount > 0 ||
-                        _job.DeviationCount > 0)"
-                @onclick="DeleteJobAsync">
+            class="btn btn-danger"
+            disabled="@(_isDeleting ||
+            _job.MeasurementCount > 0 ||
+            _job.DeviationCount > 0)"
+            @onclick="DeleteJobAsync">
             @(_isDeleting ? "Deleting..." : "Delete")
         </button>
-
-        <a class="btn btn-secondary"
-           href="@($"/jobs/{Id}")">
-            Cancel
-        </a>
-    </div>
+    }
+    <a class="btn btn-secondary"
+        href="@($"/jobs/{Id}")">
+        Cancel
+    </a>
+</div>
 }
 
 @code {
