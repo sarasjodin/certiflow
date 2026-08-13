@@ -48,8 +48,7 @@ builder.Services.AddDbContextFactory<AppDbContext>(
 builder.Services
     .AddDefaultIdentity<ApplicationUser>(options =>
     {
-        options.SignIn.RequireConfirmedAccount =
-            builder.Environment.IsProduction();
+        options.SignIn.RequireConfirmedAccount = true;
         // Password requirements.
         options.Password.RequiredLength = 6;
         options.Password.RequireDigit = true;
