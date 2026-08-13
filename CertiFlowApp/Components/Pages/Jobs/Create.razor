@@ -4,7 +4,7 @@
 @using CertiFlowApp.Features.Jobs
 @using CertiFlowApp.Models
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Policy = "InternalUser")]
 @inject NavigationManager NavigationManager
 @inject JobService JobService
 @inject CustomerService CustomerService

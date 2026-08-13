@@ -1,10 +1,9 @@
 ﻿@page "/jobs/{Id:guid}"
 @rendermode InteractiveServer
 @using CertiFlowApp.Features.Jobs
-@using CertiFlowApp.Features.Measurements
 @using CertiFlowApp.Services.DateTime
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Policy = "InternalUser")]
 @inject JobService JobService
 
 <PageTitle>Job details</PageTitle>

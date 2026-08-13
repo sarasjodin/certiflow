@@ -3,7 +3,7 @@
 @using CertiFlowApp.Features.Jobs
 @using Microsoft.AspNetCore.Authorization
 @using CertiFlowApp.Services.DateTime
-@attribute [Authorize]
+@attribute [Authorize(Policy = "InternalUser")]
 @inject JobService JobService
 @inject NavigationManager NavigationManager
 

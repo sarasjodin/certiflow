@@ -86,11 +86,11 @@ namespace CertiFlowApp.Features.Tools
                     UpdatedByUserName = tool.UpdatedByUserId == null
                         ? null
                         : db.Users
-                        .Where(user => user.Id == tool.UpdatedByUserId)
-                        .Select(user => user.UserName)
-                        .SingleOrDefault(),
+                            .Where(user => user.Id == tool.UpdatedByUserId)
+                            .Select(user => user.UserName)
+                            .SingleOrDefault(),
                 })
-                    .SingleOrDefaultAsync(cancellationToken);
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
         // Creates a new tool.

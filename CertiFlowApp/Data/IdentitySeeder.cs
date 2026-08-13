@@ -24,7 +24,7 @@ public static class IdentitySeeder
         {
             new SeedUser(
                 $"admin@{domain}",
-                [ApplicationRoles.SystemAdmin]),
+                [ApplicationRoles.SystemAdmin, ApplicationRoles.Approver]),
 
             new SeedUser(
                 $"haddad.operator@{domain}",

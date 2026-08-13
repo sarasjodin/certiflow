@@ -4,7 +4,7 @@
 @using CertiFlowApp.Features.Tools
 @using CertiFlowApp.Features.Measurements
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Policy = "InternalUser")]
 @inject NavigationManager NavigationManager
 @inject JobService JobService
 @inject ToolService ToolService
