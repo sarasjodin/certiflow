@@ -10,6 +10,7 @@ using CertiFlowApp.Services.CurrentUser;
 using CertiFlowApp.Services.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 // BUILDER
@@ -112,6 +113,19 @@ builder.Services.AddScoped<PublicDashboardService>();
 // Services depending on IEmailSender receive ResendEmailSender.
 builder.Services.AddScoped<IEmailSender, ResendEmailSender>();
 
+// Rate limiting for registration endpoint to prevent abuse for Resend email sending.
+// Limits to 5 requests per 10 minutes
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("register", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 5;
+        limiterOptions.Window = TimeSpan.FromMinutes(10);
+        limiterOptions.QueueLimit = 0;
+        limiterOptions.AutoReplenishment = true;
+    });
+});
+
 // UI
 builder.Services.AddRazorPages();
 
@@ -146,6 +160,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseAntiforgery();
+
+app.UseRateLimiter();
 
 // APP CONFIGURATIONS
 app.MapRazorComponents<App>()
