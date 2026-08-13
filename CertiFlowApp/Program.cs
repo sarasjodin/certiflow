@@ -7,7 +7,9 @@ using CertiFlowApp.Features.Measurements;
 using CertiFlowApp.Features.Public;
 using CertiFlowApp.Features.Tools;
 using CertiFlowApp.Services.CurrentUser;
+using CertiFlowApp.Services.Email;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 // BUILDER
@@ -27,6 +29,8 @@ var connectionString =
     $"Username={builder.Configuration["POSTGRES_USER"]};" +
     $"Password={builder.Configuration["POSTGRES_PASSWORD"]}";
 
+// Registers an HttpClient for sending HTTP requests (Email service uses this to send emails via Resend API)
+builder.Services.AddHttpClient();
 
 // Registers a DbContext factory for AppDbContext
 // A new AppDbContext can be created for each database operation
@@ -104,6 +108,9 @@ builder.Services.AddScoped<ToolService>();
 builder.Services.AddScoped<JobService>();
 builder.Services.AddScoped<MeasurementService>();
 builder.Services.AddScoped<PublicDashboardService>();
+
+// Services depending on IEmailSender receive ResendEmailSender.
+builder.Services.AddScoped<IEmailSender, ResendEmailSender>();
 
 // UI
 builder.Services.AddRazorPages();
