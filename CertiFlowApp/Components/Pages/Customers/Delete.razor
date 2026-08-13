@@ -33,43 +33,44 @@ else
         </div>
     }
 
-    <div class="alert alert-warning" role="alert">
-        Are you sure you want to delete this customer?
-    </div>
-
-    <dl class="row">
-        <dt class="col-sm-3">Customer</dt>
-        <dd class="col-sm-9">@_customer.Name</dd>
-
-        <dt class="col-sm-3">Organization number</dt>
-        <dd class="col-sm-9">@_customer.OrganizationNumber</dd>
-
-        <dt class="col-sm-3">Related jobs</dt>
-        <dd class="col-sm-9">@_customer.JobCount</dd>
-    </dl>
-
     @if (_customer.JobCount > 0)
     {
         <div class="alert alert-info" role="alert">
             This customer cannot be deleted because it has related jobs.
         </div>
     }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            Are you sure you want to delete this customer?
+        </div>
+    }
+<dl class="row">
+    <dt class="col-sm-3">Customer</dt>
+    <dd class="col-sm-9">@_customer.Name</dd>
 
-    <div class="d-flex gap-2">
+    <dt class="col-sm-3">Organization number</dt>
+    <dd class="col-sm-9">@_customer.OrganizationNumber</dd>
 
+    <dt class="col-sm-3">Related jobs</dt>
+    <dd class="col-sm-9">@_customer.JobCount</dd>
+</dl>
+
+<div class="d-flex gap-2">
+    @if (_customer.JobCount == 0)
+    {
         <button type="button"
-                class="btn btn-danger"
-                disabled="@(_isDeleting || _customer.JobCount > 0)"
-                @onclick="DeleteCustomerAsync">
+            class="btn btn-danger"
+            disabled="@(_isDeleting || _customer.JobCount > 0)"
+            @onclick="DeleteCustomerAsync">
             @(_isDeleting ? "Deleting..." : "Delete")
         </button>
-
-        <a class="btn btn-secondary"
-           href="@($"/customers/{Id}")">
-            Cancel
-        </a>
-
-    </div>
+    }
+    <a class="btn btn-secondary"
+        href="@($"/customers/{Id}")">
+        Cancel
+    </a>
+</div>
 }
 
 @code {

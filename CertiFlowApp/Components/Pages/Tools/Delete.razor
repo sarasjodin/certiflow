@@ -33,9 +33,18 @@ else
         </div>
     }
 
-    <div class="alert alert-warning" role="alert">
-        Are you sure you want to delete this tool?
-    </div>
+    @if (_tool.MeasurementCount > 0)
+    {
+        <div class="alert alert-info" role="alert">
+            This tool cannot be deleted because it has related measurements.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            Are you sure you want to delete this tool?
+        </div>
+    }
 
     <dl class="row">
         <dt class="col-sm-3">Tool</dt>
@@ -66,21 +75,17 @@ else
         <dd class="col-sm-9">@_tool.MeasurementCount</dd>
     </dl>
 
-    @if (_tool.MeasurementCount > 0)
-    {
-        <div class="alert alert-info" role="alert">
-            This tool cannot be deleted because it has related measurements.
-        </div>
-    }
-
     <div class="d-flex gap-2">
 
-        <button type="button"
-                class="btn btn-danger"
-                disabled="@(_isDeleting || _tool.MeasurementCount > 0)"
-                @onclick="DeleteToolAsync">
-            @(_isDeleting ? "Deleting..." : "Delete")
-        </button>
+        @if (_tool.MeasurementCount == 0)
+        {
+            <button type="button"
+                    class="btn btn-danger"
+                    disabled="@_isDeleting"
+                    @onclick="DeleteToolAsync">
+                @(_isDeleting ? "Deleting..." : "Delete")
+            </button>
+        }
 
         <a class="btn btn-secondary"
            href="@($"/tools/{Id}")">
