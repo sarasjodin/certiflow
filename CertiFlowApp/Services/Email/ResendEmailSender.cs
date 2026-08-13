@@ -22,11 +22,25 @@ public sealed class ResendEmailSender : IEmailSender
         string htmlMessage)
     {
         var apiKey = _configuration["RESEND_API_KEY"];
+        var fromEmail = _configuration["RESEND_FROM_EMAIL"];
+        var fromName = _configuration["RESEND_FROM_NAME"];
 
         if (string.IsNullOrWhiteSpace(apiKey))
         {
             throw new InvalidOperationException(
                 "RESEND_API_KEY is not configured.");
+        }
+
+        if (string.IsNullOrWhiteSpace(fromEmail))
+        {
+            throw new InvalidOperationException(
+                "RESEND_FROM_EMAIL is not configured.");
+        }
+
+        if (string.IsNullOrWhiteSpace(fromName))
+        {
+            throw new InvalidOperationException(
+                "RESEND_FROM_NAME is not configured.");
         }
 
         using var request = new HttpRequestMessage(
@@ -38,7 +52,7 @@ public sealed class ResendEmailSender : IEmailSender
 
         request.Content = JsonContent.Create(new
         {
-            from = "CertiFlow <noreply@sarasjodin.se>",
+            from = $"{fromName} <{fromEmail}>",
             to = new[] { email },
             subject,
             html = htmlMessage
