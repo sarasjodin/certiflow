@@ -1,0 +1,49 @@
+﻿@page "/account/pending"
+@using CertiFlow.Web.Infrastructure.Identity
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
+
+<PageTitle>Account pending</PageTitle>
+
+<AuthorizeView>
+    <Authorized Context="authContext">
+        @if (!authContext.User.IsInRole(ApplicationRoles.Operator) &&
+             !authContext.User.IsInRole(ApplicationRoles.Verifier) &&
+             !authContext.User.IsInRole(ApplicationRoles.Approver) &&
+             !authContext.User.IsInRole(ApplicationRoles.SystemAdmin) &&
+             !authContext.User.IsInRole(ApplicationRoles.Client))
+        {
+            <h1>Account pending</h1>
+
+            <div class="alert alert-info" role="alert">
+                Your account has been created and is awaiting administrator approval.
+            </div>
+
+            <p>
+                You can sign in, but access to CertiFlow features will remain limited
+                until an administrator assigns your account a role.
+            </p>
+
+            <form action="/logout" method="post">
+                <AntiforgeryToken />
+
+                <button type="submit" class="btn btn-secondary">
+                    Sign out
+                </button>
+            </form>
+        }
+        else
+        {
+            <h1>Account approved</h1>
+
+            <p>
+                Your account has an assigned role and no longer requires approval.
+            </p>
+
+            <a class="btn btn-primary" href="/">
+                Continue
+            </a>
+        }
+    </Authorized>
+</AuthorizeView>

@@ -13,9 +13,16 @@
         <div class="top-row px-4">
 
             <AuthorizeView>
-                <Authorized>
+                <Authorized Context="authContext">
+                    <span>
+                        Welcome, @authContext.User.Identity?.Name
+                    </span>
+
                     <form method="post" action="/logout">
-                        <button type="submit">Logout</button>
+                        <AntiforgeryToken />
+                        <button type="submit" class="btn btn-link">
+                            Logout
+                        </button>
                     </form>
                 </Authorized>
 
@@ -23,8 +30,6 @@
                     <a href="/Identity/Account/Login">Login</a>
                 </NotAuthorized>
             </AuthorizeView>
-
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
 
         <article class="main-content px-4">
