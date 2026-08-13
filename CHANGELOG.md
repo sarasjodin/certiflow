@@ -21,6 +21,21 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.7.0] - 2026-08-13
+
+### Added
+
+- Email confirmation through Resend
+- Rate limiting for account registration
+
+### Changed
+
+- Email confirmation is now required in all environments
+- Improved pending account messaging
+- Updated Identity branding from CertiFlowApp to CertiFlow
+
+---
+
 ## [0.6.0] - 2026-08-13
 
 ### Added
