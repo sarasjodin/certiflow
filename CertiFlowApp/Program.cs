@@ -58,6 +58,26 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
+// Authorization for a full set of roles and policies for coming Certiflow versions
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("InternalUser", policy =>
+        policy.RequireRole(
+            ApplicationRoles.Operator,
+            ApplicationRoles.Verifier,
+            ApplicationRoles.Approver,
+            ApplicationRoles.SystemAdmin));
+
+    options.AddPolicy("CanApproveInternally", policy =>
+        policy.RequireRole(
+            ApplicationRoles.Approver));
+
+    options.AddPolicy("CanApproveAsClient", policy =>
+        policy.RequireRole(
+            ApplicationRoles.Client));
+});
+
+
 // Makes the authentication state available to Blazor components
 builder.Services.AddCascadingAuthenticationState();
 

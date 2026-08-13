@@ -1,9 +1,8 @@
 ﻿@page "/tools/{Id:guid}/delete"
 @rendermode InteractiveServer
 @using CertiFlowApp.Features.Tools
-@using CertiFlowApp.Models
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Policy = "InternalUser")]
 @inject ToolService ToolService
 @inject NavigationManager NavigationManager
 

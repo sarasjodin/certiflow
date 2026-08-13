@@ -3,18 +3,11 @@
 @using CertiFlowApp.Features.Public
 @using CertiFlowApp.Services.DateTime
 @using Microsoft.AspNetCore.Components.Authorization
+@using CertiFlow.Web.Infrastructure.Identity
 @inject TimeProvider TimeProvider
 @inject PublicDashboardService PublicDashboardService
-
-<AuthorizeView>
-    <Authorized>
-        <h1>You are logged in</h1>
-        <p>Logged in as: @context.User.Identity?.Name</p>
-        <form method="post" action="/logout">
-            <button type="submit">Logout</button>
-        </form>
-    </Authorized>
-</AuthorizeView>
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Home</PageTitle>
 
@@ -23,16 +16,10 @@
     Welcome to CertiFlow's public dashboard.
     Here you can view public statistics.
 </p>
-<AuthorizeView>
-    <NotAuthorized>
+
 <p>
     Log in to manage customers, jobs, tools and measurements.
 </p>
-<p>
-    <a class="btn btn-primary" href="/Identity/Account/Login">Login</a>
-</p>
-    </NotAuthorized>
-</AuthorizeView>
 
 @if (_isLoading)
 {
@@ -52,10 +39,6 @@ else if (_dashboard is null)
 }
 else
 {
-    <p>
-        Last updated: @ApplicationDateTime.Format(_lastUpdatedUtc)
-    </p>
-
     <table class="table table-striped">
         <thead>
             <tr>
@@ -80,6 +63,9 @@ else
         Tools that are inactive or have an expired or missing calibration date
         are not counted as available.
     </p>
+    <p class="small text-muted text-start">
+        Last updated: @ApplicationDateTime.Format(_lastUpdatedUtc)
+    </p>
 }
 
 @code {
@@ -91,10 +77,33 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var authenticationState =
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        var user = authenticationState.User;
+
+        // Rrdirect for authenticated and approved users to the quality dashboard
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var isInternalUser =
+                user.IsInRole(ApplicationRoles.Operator) ||
+                user.IsInRole(ApplicationRoles.Verifier) ||
+                user.IsInRole(ApplicationRoles.Approver) ||
+                user.IsInRole(ApplicationRoles.SystemAdmin);
+
+            if (isInternalUser)
+            {
+                NavigationManager.NavigateTo("/quality/dashboard");
+                return;
+            }
+
+            NavigationManager.NavigateTo("/account/pending");
+            return;
+        }
         try
         {
             // Each time this component is initialized, the actual dashboard data is loaded
-            // into a new PublicDashboardDto
+            // into a new PublicDashboardDto if the user is not authenticated
             _dashboard = await PublicDashboardService.GetPublicAsync();
             _lastUpdatedUtc = TimeProvider.GetUtcNow();
         }

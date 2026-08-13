@@ -1,9 +1,8 @@
 ﻿@page "/measurements/{Id:guid}/edit"
 @rendermode InteractiveServer
 @using CertiFlowApp.Features.Measurements
-@using CertiFlowApp.Models
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Policy = "InternalUser")]
 @inject NavigationManager NavigationManager
 @inject MeasurementService MeasurementService
 

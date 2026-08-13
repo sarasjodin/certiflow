@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Authorization
 
 @page "/admin"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "SystemAdmin")]
 
 <h1>Admin</h1>
 

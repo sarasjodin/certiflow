@@ -4,7 +4,7 @@
 @using CertiFlowApp.Services.DateTime
 @using CertiFlowApp.Models
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Policy = "InternalUser")]
 @inject ToolService ToolService
 
 <PageTitle>Tool details</PageTitle>
