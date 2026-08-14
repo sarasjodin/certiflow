@@ -1,0 +1,152 @@
+﻿@page "/customers/{CustomerId:guid}/jobs"
+@rendermode InteractiveServer
+@implements IDisposable
+@using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Features.Customers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "InternalUser")]
+@inject JobService JobService
+@inject CustomerService CustomerService
+
+<PageTitle>Customer jobs</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading jobs...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (_customer is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Customer not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/customers">
+        Back to customers
+    </a>
+}
+else
+{
+    <h1>Jobs</h1>
+
+    <p>
+        Customer: <strong>@_customer.OrganizationNumber - @_customer.Name</strong><br />
+    </p>
+
+    @if (_jobs.Count == 0)
+    {
+        <div class="alert alert-info" role="alert">
+            No jobs have been registered for this customer.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Job number</th>
+                    <th>Title</th>
+                    <th>Job status</th>
+                    <th>Measurements</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var job in _jobs)
+                {
+                    <tr>
+                        <td>@job.JobNumber</td>
+                        <td>
+                            @job.Title
+                        </td>
+
+                        <td>@job.Status</td>
+
+                        <td class="p-0 text-center">
+                            <a href="@($"/jobs/{job.Id}/measurements")"
+                                class="d-block p-3 text-decoration-none">
+                                @job.MeasurementCount
+                            </a>
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="@($"/jobs/{job.Id}")">
+                                    View
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary"
+           href="@($"/customers/{_customer.Id}")">
+            View customer
+        </a>
+
+        <a class="btn btn-secondary" href="/quality/dashboard">
+            Back to Quality Dashboard
+        </a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid CustomerId { get; set; } // Receives the customer ID from the URL route
+    private CustomerDetailsModel? _customer;
+    private List<JobListItem> _jobs = [];
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            _customer = await CustomerService.GetByIdAsync(CustomerId, _componentCts.Token);
+
+            if (_customer is not null)
+            {
+                _jobs =
+                    await JobService.GetByCustomerIdAsync(CustomerId, _componentCts.Token);
+            }
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The jobs could not be loaded.";
+        }
+        finally
+        {
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
+    }
+}
+
