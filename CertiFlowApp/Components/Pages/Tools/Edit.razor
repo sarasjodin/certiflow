@@ -1,7 +1,7 @@
 ﻿@page "/tools/{Id:guid}/edit"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Tools
-@using CertiFlowApp.Models.Enums
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "InternalUser")]
 @inject ToolService ToolService
@@ -107,10 +107,10 @@ else
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
-
+    public Guid Id { get; set; }  // Receives the tool ID from the URL route
     private EditToolForm? _form;
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
     private bool _isSaving;
     private string? _errorMessage;
 
@@ -120,11 +120,19 @@ else
 
         try
         {
-            _form = await ToolService.GetEditFormAsync(Id);
+            _form = await ToolService.GetEditFormAsync(Id, _componentCts.Token);
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed.
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
     }
 
@@ -140,7 +148,7 @@ else
 
         try
         {
-            var updated = await ToolService.UpdateAsync(_form);
+            var updated = await ToolService.UpdateAsync(_form, _componentCts.Token);
 
             if (!updated)
             {
@@ -149,6 +157,11 @@ else
             }
 
             NavigationManager.NavigateTo($"/tools/{Id}");
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed.
         }
         catch (InvalidOperationException exception)
         {
@@ -160,7 +173,16 @@ else
         }
         finally
         {
-            _isSaving = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isSaving = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }

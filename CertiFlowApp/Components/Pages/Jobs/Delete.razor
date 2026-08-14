@@ -1,5 +1,6 @@
 ﻿@page "/jobs/{Id:guid}/delete"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Jobs
 @using Microsoft.AspNetCore.Authorization
 @using CertiFlowApp.Services.DateTime
@@ -88,10 +89,10 @@ else
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
-
+    public Guid Id { get; set; } // Receives the job ID from the URL route
     private JobDetailsModel? _job; // Job details model to hold the job information
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
     private bool _isDeleting;
     private string? _errorMessage;
 
@@ -101,11 +102,21 @@ else
 
         try
         {
-            _job = await JobService.GetByIdAsync(Id);
+            _job = await JobService.GetByIdAsync(
+                Id,
+                _componentCts.Token);
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
     }
 
@@ -116,7 +127,9 @@ else
 
         try
         {
-            var deleted = await JobService.DeleteAsync(Id);
+            var deleted = await JobService.DeleteAsync(
+                Id,
+                _componentCts.Token);
 
             if (!deleted)
             {
@@ -125,6 +138,11 @@ else
             }
 
             NavigationManager.NavigateTo("/jobs");
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         catch (InvalidOperationException exception)
         {
@@ -136,8 +154,17 @@ else
         }
         finally
         {
-            _isDeleting = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isDeleting = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }
 

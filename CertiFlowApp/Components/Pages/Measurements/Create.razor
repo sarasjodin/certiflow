@@ -1,5 +1,6 @@
 ﻿@page "/measurements/create"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Jobs
 @using CertiFlowApp.Features.Tools
 @using CertiFlowApp.Features.Measurements
@@ -165,20 +166,23 @@ else
 @code {
     [SupplyParameterFromQuery(Name = "jobId")]
     public Guid? JobId { get; set; }
-
     private readonly CreateMeasurementForm _form = new();
-    private bool _isSaving;
-    private string? _errorMessage;
     private List<JobOption> _jobs = [];
     private List<ToolOption> _tools = [];
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isSaving;
+    private string? _errorMessage;
+    private bool _isLoading;
 
     protected override async Task OnInitializedAsync()
     {
+        _isLoading = true;
+        _errorMessage = null;
+
         try
         {
-            _jobs = await JobService.GetOptionsAsync();
-            _tools = await ToolService.GetOptionsAsync();
+            _jobs = await JobService.GetOptionsAsync(_componentCts.Token);
+            _tools = await ToolService.GetOptionsAsync(_componentCts.Token);
 
             // Used by quality dashboard to select a specific job
             // when clicking button `Add measurement`
@@ -187,13 +191,21 @@ else
                 _form.JobId = JobId.Value;
             }
         }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
+        }
         catch (Exception)
         {
             _errorMessage = "Jobs and tools could not be loaded.";
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
     }
 
@@ -204,10 +216,15 @@ else
 
         try
         {
-            var measurement = await MeasurementService.CreateAsync(_form);
+            var measurement = await MeasurementService.CreateAsync(_form, _componentCts.Token);
 
             NavigationManager.NavigateTo(
                 $"/measurements/{measurement.Id}");
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         catch (InvalidOperationException exception)
         {
@@ -219,8 +236,19 @@ else
         }
         finally
         {
-            _isSaving = false;
+            
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isSaving = false;
+            }
+            
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }
 

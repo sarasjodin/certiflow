@@ -1,5 +1,6 @@
 ﻿@page "/tools/create"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Tools
 @using CertiFlowApp.Models.Enums
 @using Microsoft.AspNetCore.Authorization
@@ -86,6 +87,7 @@
 
 @code {
     private readonly CreateToolForm _form = new();
+    private readonly CancellationTokenSource _componentCts = new();
     private bool _isSaving;
     private string? _errorMessage;
 
@@ -96,10 +98,15 @@
 
         try
         {
-            var tool = await ToolService.CreateAsync(_form);
+            var tool = await ToolService.CreateAsync(_form, _componentCts.Token);
 
             NavigationManager.NavigateTo(
                 $"/tools/{tool.Id}");
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed.
         }
         catch (InvalidOperationException exception)
         {
@@ -111,7 +118,16 @@
         }
         finally
         {
-            _isSaving = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isSaving = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }

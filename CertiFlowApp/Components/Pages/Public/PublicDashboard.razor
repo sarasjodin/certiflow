@@ -1,5 +1,6 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Public
 @using CertiFlowApp.Services.DateTime
 @using Microsoft.AspNetCore.Components.Authorization
@@ -34,83 +35,87 @@
         </div>
     </div>
 
-@if (_isLoading)
-{
-    <p>Loading dashboard...</p>
-}
-else if (!string.IsNullOrWhiteSpace(_errorMessage))
-{
-    <div class="alert alert-danger" role="alert">
-        @_errorMessage
-    </div>
-}
-else if (_dashboard is null)
-{
-    <div class="alert alert-info" role="alert">
-        Dashboard data could not be loaded.
-    </div>
-}
-else
-{
-    <div class="row g-4 mb-4">        
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="text-muted text-uppercase mb-2">
-                        Current
+    @if (_isLoading)
+    {
+        <p>Loading dashboard...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
+        </div>
+    }
+    else if (_dashboard is null)
+    {
+        <div class="alert alert-info" role="alert">
+            Dashboard data could not be loaded.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4 mb-4">        
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="text-muted text-uppercase mb-2">
+                            Current
+                        </div>
+                        <h5 class="card-title">Approved jobs</h5>
+                        <p class="display-6 mb-0">@_dashboard.ApprovedJobCount</p>
                     </div>
-                    <h5 class="card-title">Approved jobs</h5>
-                    <p class="display-6 mb-0">@_dashboard.ApprovedJobCount</p>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="text-muted text-uppercase mb-2">
-                        Current
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="text-muted text-uppercase mb-2">
+                            Current
+                        </div>
+                        <h5 class="card-title">Registered measurements</h5>
+                        <p class="display-6 mb-0">@_dashboard.MeasurementCount</p>
                     </div>
-                    <h5 class="card-title">Registered measurements</h5>
-                    <p class="display-6 mb-0">@_dashboard.MeasurementCount</p>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="text-muted text-uppercase mb-2">
-                        Current
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="text-muted text-uppercase mb-2">
+                            Current
+                        </div>
+                        <h5 class="card-title">Available tools</h5>
+                        <p class="display-6 mb-0">@_dashboard.AvailableToolCount</p>
                     </div>
-                    <h5 class="card-title">Available tools</h5>
-                    <p class="display-6 mb-0">@_dashboard.AvailableToolCount</p>
                 </div>
             </div>
+            <p>
+                * Available tools are active tools with a valid calibration.
+                Tools that are inactive or have an expired or missing calibration date
+                are not counted as available.
+            </p>
+            <p class="small text-muted text-start mb-4">
+                Last updated: @ApplicationDateTime.Format(_lastUpdatedUtc)
+            </p>
         </div>
-        <p>
-            * Available tools are active tools with a valid calibration.
-            Tools that are inactive or have an expired or missing calibration date
-            are not counted as available.
-        </p>
-        <p class="small text-muted text-start mb-4">
-            Last updated: @ApplicationDateTime.Format(_lastUpdatedUtc)
-        </p>
-    </div>
-}
+    }
+</div>
+
 
 @code {
     private PublicDashboardDto? _dashboard;
     private DateTimeOffset? _lastUpdatedUtc;
-    
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
     private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        _isLoading = true;
+
         var authenticationState =
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
+        
         var user = authenticationState.User;
 
         // Rrdirect for authenticated and approved users to the quality dashboard
@@ -131,12 +136,18 @@ else
             NavigationManager.NavigateTo("/account/pending");
             return;
         }
+
         try
         {
             // Each time this component is initialized, the actual dashboard data is loaded
             // into a new PublicDashboardDto if the user is not authenticated
-            _dashboard = await PublicDashboardService.GetPublicAsync();
+            _dashboard = await PublicDashboardService.GetPublicAsync(_componentCts.Token);
             _lastUpdatedUtc = TimeProvider.GetUtcNow();
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         catch (Exception)
         {
@@ -144,9 +155,17 @@ else
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
     }
+    
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
+    }
 }
-</div>
 

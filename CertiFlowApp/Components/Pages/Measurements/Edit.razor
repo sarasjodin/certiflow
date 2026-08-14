@@ -1,5 +1,6 @@
 ﻿@page "/measurements/{Id:guid}/edit"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Measurements
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "InternalUser")]
@@ -95,20 +96,26 @@ else
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
-
+    public Guid Id { get; set; } // Receives the measurement ID from the URL route
     private EditMeasurementForm? _form;
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
     private bool _isSaving;
     private string? _errorMessage;
 
     protected override async Task OnParametersSetAsync()
     {
         _isLoading = true;
+        _errorMessage = null;
 
         try
         {
-            _form = await MeasurementService.GetEditFormAsync(Id);
+            _form = await MeasurementService.GetEditFormAsync(Id, _componentCts.Token);
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         catch (Exception)
         {
@@ -116,7 +123,10 @@ else
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
     }
 
@@ -132,7 +142,7 @@ else
 
         try
         {
-            var updated = await MeasurementService.UpdateAsync(_form);
+            var updated = await MeasurementService.UpdateAsync(_form, _componentCts.Token);
 
             if (!updated)
             {
@@ -141,6 +151,11 @@ else
             }
 
             NavigationManager.NavigateTo($"/measurements/{Id}");
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         catch (InvalidOperationException exception)
         {
@@ -152,7 +167,16 @@ else
         }
         finally
         {
-            _isSaving = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isSaving = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }

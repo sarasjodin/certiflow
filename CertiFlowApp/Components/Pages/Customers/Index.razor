@@ -1,5 +1,6 @@
 ﻿@page "/customers"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Customers
 @using CertiFlowApp.Models
 @using Microsoft.AspNetCore.Authorization
@@ -77,14 +78,22 @@ else
 
 @code {
     private List<Customer> _customers = [];
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
     private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        _isLoading = true;
+
         try
         {
-            _customers = await CustomerService.GetAllAsync();
+            _customers = await CustomerService.GetAllAsync(_componentCts.Token);
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected when the component is disposed.
         }
         catch (Exception)
         {
@@ -92,7 +101,16 @@ else
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }

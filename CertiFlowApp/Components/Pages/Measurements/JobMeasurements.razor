@@ -1,5 +1,6 @@
 ﻿@page "/jobs/{JobId:guid}/measurements"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Jobs
 @using CertiFlowApp.Features.Measurements
 @using CertiFlowApp.Services.DateTime
@@ -105,12 +106,11 @@ else
 
 @code {
     [Parameter]
-    public Guid JobId { get; set; }
-
+    public Guid JobId { get; set; } // Receives the job ID from the URL route
     private JobDetailsModel? _job;
     private List<MeasurementListItem> _measurements = [];
-
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
     private string? _errorMessage;
 
     protected override async Task OnParametersSetAsync()
@@ -120,13 +120,18 @@ else
 
         try
         {
-            _job = await JobService.GetByIdAsync(JobId);
+            _job = await JobService.GetByIdAsync(JobId, _componentCts.Token);
 
             if (_job is not null)
             {
                 _measurements =
-                    await MeasurementService.GetByJobIdAsync(JobId);
+                    await MeasurementService.GetByJobIdAsync(JobId, _componentCts.Token);
             }
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         catch (Exception)
         {
@@ -134,7 +139,16 @@ else
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }
