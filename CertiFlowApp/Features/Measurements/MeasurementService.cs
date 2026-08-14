@@ -47,6 +47,7 @@ public class MeasurementService
             // instead of loading the entire Measurement entity, which makes the query faster.
             {
                 Id = measurement.Id,
+                JobId = measurement.JobId,
                 JobNumber = measurement.Job.JobNumber,
                 ToolName = measurement.Tool.Name,
                 ToolSerialNumber = measurement.Tool.SerialNumber,
@@ -132,7 +133,36 @@ public class MeasurementService
             .Select(measurement => new MeasurementListItem
             {
                 Id = measurement.Id,
+                JobId = measurement.JobId,
                 JobNumber = measurement.Job.JobNumber,
+                ToolName = measurement.Tool.Name,
+                ToolSerialNumber = measurement.Tool.SerialNumber,
+                Value = measurement.Value,
+                Unit = measurement.Unit,
+                Status = measurement.Status,
+                MeasuredAtUtc = measurement.MeasuredAtUtc
+            })
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<MeasurementListItem>> GetByToolIdAsync(
+        Guid toolId,
+        CancellationToken cancellationToken = default)
+    {
+        await using var db =
+            await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await db.Measurements
+            .AsNoTracking()
+            .Where(measurement => measurement.ToolId == toolId)
+            .OrderByDescending(measurement => measurement.MeasuredAtUtc)
+            .Select(measurement => new MeasurementListItem
+            {
+                Id = measurement.Id,
+                JobId = measurement.JobId,
+                JobNumber = measurement.Job.JobNumber,
+                CustomerId = measurement.Job.CustomerId,
+                CustomerName = measurement.Job.Customer.Name,
                 ToolName = measurement.Tool.Name,
                 ToolSerialNumber = measurement.Tool.SerialNumber,
                 Value = measurement.Value,

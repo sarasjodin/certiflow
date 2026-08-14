@@ -1,0 +1,171 @@
+﻿@page "/tools/{ToolId:guid}/measurements"
+@rendermode InteractiveServer
+@implements IDisposable
+@using CertiFlowApp.Features.Tools
+@using CertiFlowApp.Features.Measurements
+@using CertiFlowApp.Services.DateTime
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "InternalUser")]
+@inject ToolService ToolService
+@inject MeasurementService MeasurementService
+
+<PageTitle>@(_tool is null ? "Tool measurements" : $"{_tool.SerialNumber} measurements")</PageTitle>
+
+@if (_isLoading)
+{
+    <p>Loading measurements...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (_tool is null)
+{
+    <div class="alert alert-warning" role="alert">
+        Tool not found.
+    </div>
+
+    <a class="btn btn-secondary" href="/tools">
+        Back to tools
+    </a>
+}
+else
+{
+    <h1>@_tool.SerialNumber measurements</h1>
+
+    <dl class="row">
+        <dt class="col-sm-3">Tool</dt>
+        <dd class="col-sm-9">@_tool.Name</dd>
+
+        <dt class="col-sm-3">Serial number</dt>
+        <dd class="col-sm-9">@_tool.SerialNumber</dd>
+
+        <dt class="col-sm-3">Tool type</dt>
+        <dd class="col-sm-9">@_tool.ToolType</dd>
+    </dl>
+
+    @if (_measurements.Count == 0)
+    {
+        <div class="alert alert-info" role="alert">
+            No measurements have been registered for this tool.
+        </div>
+    }
+    else
+    {
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Job</th>
+                    <th>Customer</th>
+                    <th>Value</th>
+                    <th>Measurement status</th>
+                    <th>Measured at</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var measurement in _measurements)
+                {
+                    <tr>
+                        <td>
+                            <a href="@($"/jobs/{measurement.JobId}")"
+                               class="text-decoration-none">
+                                @measurement.JobNumber
+                            </a>
+                        </td>
+                        <td>
+                            <a href="@($"/customers/{measurement.CustomerId}/jobs")"
+                               class="text-decoration-none"
+                               aria-label="@($"View jobs for {measurement.CustomerName}")">
+                                @measurement.CustomerName <span aria-hidden="true">›</span>
+                            </a>
+                        </td>
+                        <td>@measurement.Value @measurement.Unit</td>
+
+                        <td>@measurement.Status</td>
+
+                        <td>
+                            @ApplicationDateTime.Format(measurement.MeasuredAtUtc)
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="@($"/measurements/{measurement.Id}")">
+                                    View
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+
+    <div class="d-flex gap-2">
+
+        @* To be implemented: Add measurement functionality. For now, the button is disabled. *@
+        <span class="btn btn-secondary disabled"
+              aria-disabled="true">
+            Add measurement
+        </span>
+
+        <a class="btn btn-secondary" href="/tools">
+            Back to tools
+        </a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid ToolId { get; set; } // Receives the tool ID from the URL route
+    private ToolDetailsModel? _tool;
+    private List<MeasurementListItem> _measurements = [];
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            _tool = await ToolService.GetByIdAsync(ToolId, _componentCts.Token);
+
+            if (_tool is not null)
+            {
+                _measurements =
+                    await MeasurementService.GetByToolIdAsync(ToolId, _componentCts.Token);
+            }
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
+        }
+        catch (Exception)
+        {
+            _errorMessage = "The measurements could not be loaded.";
+        }
+        finally
+        {
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
+    }
+}
