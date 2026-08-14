@@ -38,8 +38,8 @@
     {
         <table class="table table-striped">
             <thead>
-                <tr>
-                    <th>Name</th>
+            <tr class="align-middle">
+                <th>Name</th>
                     <th>Serial number</th>
                     <th>Tool type</th>
                     <th>Calibration status</th>
@@ -52,8 +52,8 @@
             <tbody>
                 @foreach (var tool in _tools)
                 {
-                    <tr>
-                        <td>@tool.Name</td>
+                <tr class="align-middle">
+                    <td>@tool.Name</td>
                         <td>@tool.SerialNumber</td>
                         <td>@tool.ToolType</td>
                         <td>
