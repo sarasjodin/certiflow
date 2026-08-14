@@ -44,6 +44,7 @@ else if (_customers.Count == 0)
 }
 else
 {
+<div class="form-container">
     <EditForm Model="_form"
               OnValidSubmit="CreateJobAsync"
               FormName="create-job">
@@ -118,9 +119,8 @@ else
             Cancel
         </a>
     </EditForm>
+</div>
 }
-
-
 
 @code {
     private readonly CreateJobForm _form = new();
