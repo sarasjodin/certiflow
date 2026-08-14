@@ -18,46 +18,48 @@
     </div>
 }
 
-<EditForm Model="_form"
-          OnValidSubmit="CreateCustomerAsync"
-          FormName="create-customer">
+<div class="form-container">
+    <EditForm Model="_form"
+              OnValidSubmit="CreateCustomerAsync"
+              FormName="create-customer">
 
-    <DataAnnotationsValidator />
+        <DataAnnotationsValidator />
 
-    <div class="mb-3">
-        <label for="customer-name" class="form-label">
-            Customer name
-        </label>
+        <div class="mb-3">
+            <label for="customer-name" class="form-label">
+                Customer name
+            </label>
 
-        <InputText id="customer-name"
-                   class="form-control"
-                   @bind-Value="_form.Name" />
+            <InputText id="customer-name"
+                       class="form-control"
+                       @bind-Value="_form.Name" />
 
-        <ValidationMessage For="() => _form.Name" />
-    </div>
+            <ValidationMessage For="() => _form.Name" />
+        </div>
 
-    <div class="mb-3">
-        <label for="organization-number" class="form-label">
-            Organization number
-        </label>
+        <div class="mb-3">
+            <label for="organization-number" class="form-label">
+                Organization number
+            </label>
 
-        <InputText id="organization-number"
-                   class="form-control"
-                   @bind-Value="_form.OrganizationNumber" />
+            <InputText id="organization-number"
+                       class="form-control"
+                       @bind-Value="_form.OrganizationNumber" />
 
-        <ValidationMessage For="() => _form.OrganizationNumber" />
-    </div>
+            <ValidationMessage For="() => _form.OrganizationNumber" />
+        </div>
 
-    <button type="submit"
-            class="btn btn-primary"
-            disabled="@_isSaving">
-        @(_isSaving ? "Saving..." : "Create")
-    </button>
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@_isSaving">
+            @(_isSaving ? "Saving..." : "Create")
+        </button>
 
-    <a class="btn btn-secondary" href="/customers">
-        Cancel
-    </a>
-</EditForm>
+        <a class="btn btn-secondary" href="/customers">
+            Cancel
+        </a>
+    </EditForm>
+</div>
 
 @code {
     private readonly CreateCustomerForm _form = new();

@@ -19,71 +19,74 @@
     </div>
 }
 
-<EditForm Model="_form"
-          OnValidSubmit="CreateToolAsync"
-          FormName="create-tool">
+<div class="form-container">
 
-    <DataAnnotationsValidator />
+    <EditForm Model="_form"
+              OnValidSubmit="CreateToolAsync"
+              FormName="create-tool">
 
-    <div class="mb-3">
-        <label for="tool-name" class="form-label">
-            Tool name
-        </label>
+        <DataAnnotationsValidator />
 
-        <InputText id="tool-name"
-                   class="form-control"
-                   @bind-Value="_form.Name" />
+        <div class="mb-3">
+            <label for="tool-name" class="form-label">
+                Tool name
+            </label>
 
-        <ValidationMessage For="() => _form.Name" />
-    </div>
+            <InputText id="tool-name"
+                       class="form-control"
+                       @bind-Value="_form.Name" />
 
-    <div class="mb-3">
-        <label for="tool-serial-number" class="form-label">
-            Serial number
-        </label>
+            <ValidationMessage For="() => _form.Name" />
+        </div>
 
-        <InputText id="tool-serial-number"
-                   class="form-control"
-                   @bind-Value="_form.SerialNumber" />
+        <div class="mb-3">
+            <label for="tool-serial-number" class="form-label">
+                Serial number
+            </label>
 
-        <ValidationMessage For="() => _form.SerialNumber" />
-    </div>
+            <InputText id="tool-serial-number"
+                       class="form-control"
+                       @bind-Value="_form.SerialNumber" />
 
-    <div class="mb-3">
-        <label for="tool-type" class="form-label">
-            Tool type
-        </label>
+            <ValidationMessage For="() => _form.SerialNumber" />
+        </div>
 
-        <InputText id="tool-type"
-                   class="form-control"
-                   @bind-Value="_form.ToolType" />
+        <div class="mb-3">
+            <label for="tool-type" class="form-label">
+                Tool type
+            </label>
 
-        <ValidationMessage For="() => _form.ToolType" />
-    </div>
+            <InputText id="tool-type"
+                       class="form-control"
+                       @bind-Value="_form.ToolType" />
 
-    <div class="mb-3">
-        <label for="tool-calibration-valid-until"
-               class="form-label">
-            Calibration valid until
-        </label>
+            <ValidationMessage For="() => _form.ToolType" />
+        </div>
 
-        <InputDate id="tool-calibration-valid-until"
-                   class="form-control"
-                   @bind-Value="_form.CalibrationValidUntil" />
+        <div class="mb-3">
+            <label for="tool-calibration-valid-until"
+                   class="form-label">
+                Calibration valid until
+            </label>
 
-        <ValidationMessage For="() => _form.CalibrationValidUntil" />
-    </div>
+            <InputDate id="tool-calibration-valid-until"
+                       class="form-control"
+                       @bind-Value="_form.CalibrationValidUntil" />
 
-    <button type="submit"
-            class="btn btn-primary"
-            disabled="@_isSaving">
-        @(_isSaving ? "Saving..." : "Create")
-    </button>
+            <ValidationMessage For="() => _form.CalibrationValidUntil" />
+        </div>
 
-    <a class="btn btn-secondary" href="/tools">
-        Cancel
-    </a>
-</EditForm>
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@_isSaving">
+            @(_isSaving ? "Saving..." : "Create")
+        </button>
+
+        <a class="btn btn-secondary" href="/tools">
+            Cancel
+        </a>
+    </EditForm>
+</div>
 
 @code {
     private readonly CreateToolForm _form = new();
