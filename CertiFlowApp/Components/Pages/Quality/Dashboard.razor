@@ -2,10 +2,12 @@
 @rendermode InteractiveServer
 @implements IDisposable
 @using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Features.Customers
 @using CertiFlowApp.Models.Enums
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "InternalUser")]
 @inject JobService JobService
+@inject CustomerService CustomerService
 
 <PageTitle>Quality Dashboard</PageTitle>
 
@@ -53,12 +55,12 @@ else
     {
         <table class="table table-striped">
             <thead>
-                <tr>
+                <tr class="align-middle">
                     <th>Job</th>
                     <th>Title</th>
                     <th>Customer</th>
-                    <th>Measurements</th>
-                    <th>Status</th>
+                    <th class="text-center">Measurements</th>
+                    <th class="text-center">Job status</th>
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
@@ -66,24 +68,33 @@ else
             <tbody>
                 @foreach (var job in _jobs)
                 {
-                    <tr>
+                    <tr class="align-middle">
                         <td>@job.JobNumber</td>
                         <td>@job.Title</td>
-                        <td>@job.CustomerName</td>
-                        <td>@job.MeasurementCount</td>
-                        <td>@job.Status</td>
                         <td>
-                            <div class="d-flex justify-content-center gap-2">
+                            <a href="@($"/customers/{job.CustomerId}/jobs")"
+                               class="d-block text-decoration-none">
+                                @job.CustomerName
+                            </a>
+                        </td>
+                        <td class="p-0 text-center">
+                            <a href="@($"/jobs/{job.Id}/measurements")"
+                                class="d-block p-3 text-decoration-none">
+                                @job.MeasurementCount
+                            </a>
+                        </td>
+                        <td class="text-center">@job.Status</td>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center gap-2">
                                 <a class="btn btn-sm btn-outline-primary"
                                    href="@($"/jobs/{job.Id}")">
                                     Job details
                                 </a>
                               
-                                <a class="btn btn-sm btn-primary"
+                                <a class="btn btn-sm btn-primary justify-content-center align-items-center"
                                     href="@($"/measurements/create?jobId={job.Id}")">
                                     Add measurement
                                 </a>
-                               
                             </div>
                         </td>
                     </tr>

@@ -28,6 +28,7 @@ namespace CertiFlowApp.Features.Jobs
                 // instead of loading the entire Job entity, which makes the query faster.
                 {
                     Id = job.Id,
+                    CustomerId = job.CustomerId,
                     JobNumber = job.JobNumber,
                     Title = job.Title,
                     CustomerName = job.Customer.Name,
@@ -264,6 +265,30 @@ namespace CertiFlowApp.Features.Jobs
             await db.SaveChangesAsync(cancellationToken);
 
             return true;
+        }
+
+        public async Task<List<JobListItem>> GetByCustomerIdAsync(
+            Guid customerId,
+            CancellationToken cancellationToken = default)
+        {
+            await using var db =
+                await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.Jobs
+                .AsNoTracking()
+                .Where(job => job.CustomerId == customerId)
+                .OrderByDescending(job => job.JobNumber)
+                .Select(job => new JobListItem
+                {
+                    Id = job.Id,
+                    JobNumber = job.JobNumber,
+                    Title = job.Title,
+                    Status = job.Status,
+                    CustomerId = job.CustomerId,
+                    CustomerName = job.Customer.Name,
+                    MeasurementCount = job.Measurements.Count
+                })
+                .ToListAsync(cancellationToken);
         }
 
         // Return jobs as dropdown

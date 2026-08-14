@@ -19,4 +19,7 @@ public sealed class JobListItem
     public JobStatus Status { get; init; }
 
     public int MeasurementCount { get; init; }
+
+    // CustomerJobs table - This property is used to filter jobs by customer.
+    public Guid CustomerId { get; init; }
 }
