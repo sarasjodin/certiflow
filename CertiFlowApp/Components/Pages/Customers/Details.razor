@@ -3,6 +3,7 @@
 @implements IDisposable
 @using CertiFlowApp.Features.Customers
 @using Microsoft.AspNetCore.Authorization
+@using CertiFlowApp.Services.DateTime
 @attribute [Authorize(Policy = "InternalUser")]
 @inject CustomerService CustomerService
 
@@ -31,9 +32,7 @@ else
         <dd class="col-sm-9">@_customer.OrganizationNumber</dd>
 
         <dt class="col-sm-3">Created</dt>
-        <dd class="col-sm-9">
-            @_customer.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
-        </dd>
+        <dd class="col-sm-9">@ApplicationDateTime.Format(_customer.CreatedAtUtc)</dd>
 
         <dt class="col-sm-3">Created by</dt>
         <dd class="col-sm-9">@_customer.CreatedByUserName</dd>
@@ -43,7 +42,7 @@ else
             @if (_customer.UpdatedAtUtc.HasValue)
             {
                 <span>
-                    @_customer.UpdatedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                    @ApplicationDateTime.Format(_customer.UpdatedAtUtc)
                 </span>
             }
             else
