@@ -34,64 +34,66 @@ else if (_form is null)
 }
 else
 {
+    <div class="form-container">
+        <EditForm Model="_form"
+                  OnValidSubmit="UpdateMeasurementAsync"
+                  FormName="edit-measurement">
 
-    <EditForm Model="_form"
-              OnValidSubmit="UpdateMeasurementAsync"
-              FormName="edit-measurement">
+            <DataAnnotationsValidator />
+        
+                
+                <div class="mb-3">
+                        <label for="measurement-value" class="form-label">
+                            Value
+                        </label>
 
-        <DataAnnotationsValidator />
+                        <InputNumber id="measurement-value"
+                                     class="form-control"
+                                     @bind-Value="_form.Value" />
 
-        <div class="mb-3">
-            <label for="measurement-value" class="form-label">
-                Value
-            </label>
+                        <ValidationMessage For="() => _form.Value" />
+                </div>
 
-            <InputNumber id="measurement-value"
-                         class="form-control"
-                         @bind-Value="_form.Value" />
+                <div class="mb-3">
+                    <label for="measurement-unit" class="form-label">
+                        Unit
+                    </label>
 
-            <ValidationMessage For="() => _form.Value" />
-        </div>
+                    <InputText id="measurement-unit"
+                               class="form-control"
+                               @bind-Value="_form.Unit" />
 
-        <div class="mb-3">
-            <label for="measurement-unit" class="form-label">
-                Unit
-            </label>
+                    <ValidationMessage For="() => _form.Unit" />
 
-            <InputText id="measurement-unit"
-                       class="form-control"
-                       @bind-Value="_form.Unit" />
+                </div>
 
-            <ValidationMessage For="() => _form.Unit" />
+                <div class="mb-3">
+                    <label for="measurement-notes" class="form-label">
+                        Notes
+                    </label>
 
-        </div>
+                    <InputTextArea id="measurement-notes"
+                                   class="form-control"
+                                   @bind-Value="_form.Notes" />
 
-        <div class="mb-3">
-            <label for="measurement-notes" class="form-label">
-                Notes
-            </label>
+                    <ValidationMessage For="() => _form.Notes" />
 
-            <InputTextArea id="measurement-notes"
-                           class="form-control"
-                           @bind-Value="_form.Notes" />
+                </div>
+                <div class="d-flex gap-2">
 
-            <ValidationMessage For="() => _form.Notes" />
+                    <button type="submit"
+                            class="btn btn-primary"
+                            disabled="@_isSaving">
+                        @(_isSaving ? "Saving..." : "Save changes")
+                    </button>
 
-        </div>
-        <div class="d-flex gap-2">
-
-            <button type="submit"
-                    class="btn btn-primary"
-                    disabled="@_isSaving">
-                @(_isSaving ? "Saving..." : "Save changes")
-            </button>
-
-            <a class="btn btn-secondary"
-               href="@($"/measurements/{Id}")">
-                Cancel
-            </a>
-        </div>
-    </EditForm>
+                    <a class="btn btn-secondary"
+                       href="@($"/measurements/{Id}")">
+                        Cancel
+                    </a>
+                </div>
+        </EditForm>
+    </div>
 }
 
 @code {

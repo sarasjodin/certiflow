@@ -34,75 +34,76 @@ else
         </div>
     }
 
-    <EditForm Model="_form"
-              OnValidSubmit="UpdateToolAsync"
-              FormName="edit-tool">
+    <div class="form-container">
+        <EditForm Model="_form"
+            OnValidSubmit="UpdateToolAsync"
+            FormName="edit-tool">
 
-        <DataAnnotationsValidator />
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                    <label for="tool-name" class="form-label">
+                        Tool name
+                    </label>
 
-        <div class="mb-3">
-            <label for="tool-name" class="form-label">
-                Tool name
-            </label>
+                    <InputText id="tool-name"
+                                class="form-control"
+                                @bind-Value="_form.Name" />
 
-            <InputText id="tool-name"
-                       class="form-control"
-                       @bind-Value="_form.Name" />
+                    <ValidationMessage For="() => _form.Name" />
+            </div>
 
-            <ValidationMessage For="() => _form.Name" />
-        </div>
+            <div class="mb-3">
+                <label for="tool-serial-number" class="form-label">
+                    Serial number
+                </label>
 
-        <div class="mb-3">
-            <label for="tool-serial-number" class="form-label">
-                Serial number
-            </label>
+                <InputText id="tool-serial-number"
+                            class="form-control"
+                            @bind-Value="_form.SerialNumber" />
 
-            <InputText id="tool-serial-number"
-                       class="form-control"
-                       @bind-Value="_form.SerialNumber" />
+                <ValidationMessage For="() => _form.SerialNumber" />
+            </div>
 
-            <ValidationMessage For="() => _form.SerialNumber" />
-        </div>
+            <div class="mb-3">
+                <label for="tool-type" class="form-label">
+                    Tool type
+                </label>
 
-        <div class="mb-3">
-            <label for="tool-type" class="form-label">
-                Tool type
-            </label>
+                <InputText id="tool-type"
+                            class="form-control"
+                            @bind-Value="_form.ToolType" />
 
-            <InputText id="tool-type"
-                       class="form-control"
-                       @bind-Value="_form.ToolType" />
+                <ValidationMessage For="() => _form.ToolType" />
+            </div>
 
-            <ValidationMessage For="() => _form.ToolType" />
-        </div>
+            <div class="mb-3">
+                <label for="tool-calibration-valid-until"
+                        class="form-label">
+                    Calibration valid until
+                </label>
 
-        <div class="mb-3">
-            <label for="tool-calibration-valid-until"
-                   class="form-label">
-                Calibration valid until
-            </label>
+                <InputDate id="tool-calibration-valid-until"
+                            class="form-control"
+                            @bind-Value="_form.CalibrationValidUntil" />
 
-            <InputDate id="tool-calibration-valid-until"
-                       class="form-control"
-                       @bind-Value="_form.CalibrationValidUntil" />
+                <ValidationMessage For="() => _form.CalibrationValidUntil" />
+            </div>
 
-            <ValidationMessage For="() => _form.CalibrationValidUntil" />
-        </div>
+            <div class="d-flex gap-2">
 
-        <div class="d-flex gap-2">
+                <button type="submit"
+                        class="btn btn-primary"
+                        disabled="@_isSaving">
+                    @(_isSaving ? "Saving..." : "Save changes")
+                </button>
 
-            <button type="submit"
-                    class="btn btn-primary"
-                    disabled="@_isSaving">
-                @(_isSaving ? "Saving..." : "Save changes")
-            </button>
-
-            <a class="btn btn-secondary"
-               href="@($"/tools/{Id}")">
-                Cancel
-            </a>
-        </div>
-    </EditForm>
+                <a class="btn btn-secondary"
+                    href="@($"/tools/{Id}")">
+                    Cancel
+                </a>
+            </div>
+        </EditForm>
+    </div>
 }
 
 @code {
