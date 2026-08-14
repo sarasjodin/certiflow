@@ -9,7 +9,7 @@
 @inject JobService JobService
 @inject MeasurementService MeasurementService
 
-<PageTitle>Job measurements</PageTitle>
+<PageTitle>@(_job is null ? "Job measurements" : $"{_job.JobNumber} measurements")</PageTitle>
 
 @if (_isLoading)
 {
@@ -33,12 +33,18 @@ else if (_job is null)
 }
 else
 {
-    <h1>Measurements</h1>
+    <h1>@_job.JobNumber measurements</h1>
 
-    <p>
-        Job: <strong>@_job.JobNumber - @_job.Title</strong><br />
-        Customer: @_job.CustomerName
-    </p>
+    <dl class="row">
+        <dt class="col-sm-3">Job number</dt>
+        <dd class="col-sm-9">@_job.JobNumber</dd>
+
+        <dt class="col-sm-3">Title</dt>
+        <dd class="col-sm-9">@_job.Title</dd>
+
+        <dt class="col-sm-3">Customer</dt>
+        <dd class="col-sm-9">@_job.CustomerName</dd>
+    </dl>
 
     @if (_measurements.Count == 0)
     {
@@ -48,6 +54,7 @@ else
     }
     else
     {
+    <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -88,6 +95,7 @@ else
                 }
             </tbody>
         </table>
+    </div>
     }
 
     <div class="d-flex gap-2">
@@ -105,7 +113,7 @@ else
 
 @code {
     [Parameter]
-    public Guid JobId { get; set; } // Receives the job ID from the URL route
+    public Guid JobId { get; set; }
     private JobDetailsModel? _job;
     private List<MeasurementListItem> _measurements = [];
     private readonly CancellationTokenSource _componentCts = new();

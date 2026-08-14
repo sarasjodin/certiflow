@@ -35,6 +35,7 @@ else if (_measurements.Count == 0)
 }
 else
 {
+<div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
@@ -51,9 +52,17 @@ else
             @foreach (var measurement in _measurements)
             {
                 <tr class="align-middle">
-                    <td>@measurement.JobNumber</td>
                     <td>
-                        @measurement.ToolName - @measurement.ToolSerialNumber
+                        <a href="@($"/jobs/{measurement.JobId}")"
+                           class="text-decoration-none">
+                            @measurement.JobNumber
+                        </a>
+                    </td>
+                    <td>
+                        <div>@measurement.ToolName</div>
+                        <div class="text-muted">
+                            @measurement.ToolSerialNumber
+                        </div>
                     </td>
                     <td>@measurement.Value @measurement.Unit</td>
                     <td>@measurement.Status</td>
@@ -80,6 +89,7 @@ else
             }
         </tbody>
     </table>
+</div>
 }
 
 @code {

@@ -66,41 +66,35 @@ else
         <dd class="col-sm-9">@_job.MeasurementCount</dd>
     </dl>
 
-    <div class="d-flex gap-2">
-        @if (_job.MeasurementCount > 0)
+    <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-primary"
+       href="@($"/measurements/create?jobId={_job.Id}")">
+        Add measurement
+    </a>
+
+    @if (_job.MeasurementCount > 0)
         {
-            <a class="btn btn-outline-primary"
-                href="@($"/jobs/{_job.Id}/measurements")">
-                View measurements
-            </a>
+        <a class="btn btn-outline-primary"
+           href="@($"/jobs/{_job.Id}/measurements")">
+            View measurements
+        </a>
         }
 
-        <a class="btn btn-primary"
-            href="@($"/measurements/create?jobId={_job.Id}")">
-            Add measurement
-        </a>
+    <a class="btn btn-outline-secondary"
+       href="@($"/jobs/{_job.Id}/edit")">
+        Edit job
+    </a>
 
-        <div class="d-flex gap-2">
-            <a class="btn btn-primary"
-                href="@($"/jobs/{_job.Id}/edit")">
-                Edit job
-            </a>
-
-            <a class="btn btn-danger"
-                href="@($"/jobs/{_job.Id}/delete")">
-                Delete job
-            </a>
-
-            <a class="btn btn-secondary" href="/jobs">
-                Back to jobs
-            </a>
-
-            <a class="btn btn-secondary" href="/quality/dashboard">
-                Back to Quality Dashboard
-            </a>
-    
-        </div>
-    </div>
+    <a class="btn btn-outline-danger"
+       href="@($"/jobs/{_job.Id}/delete")">
+        Delete job
+    </a>
+</div>
+<div class="mt-3">
+    <a class="btn btn-secondary" href="/jobs">
+        Back to jobs
+    </a>
+</div>
 }
 
 @code {
