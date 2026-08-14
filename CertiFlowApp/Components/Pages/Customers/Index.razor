@@ -4,6 +4,7 @@
 @using CertiFlowApp.Features.Customers
 @using CertiFlowApp.Models
 @using Microsoft.AspNetCore.Authorization
+@using CertiFlowApp.Services.DateTime
 @attribute [Authorize(Policy = "InternalUser")]
 @inject CustomerService CustomerService
 
@@ -48,10 +49,10 @@ else
         <tbody>
             @foreach (var customer in _customers)
             {
-                <tr>
+                <tr class="align-middle">
                     <td>@customer.Name</td>
                     <td>@customer.OrganizationNumber</td>
-                    <td>@customer.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@ApplicationDateTime.Format(customer.CreatedAtUtc)</td>
                     <td>
                         <div class="d-flex justify-content-center gap-2">
                             <a class="btn btn-sm btn-outline-primary"
