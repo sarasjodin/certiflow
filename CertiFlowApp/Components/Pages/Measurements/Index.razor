@@ -41,7 +41,7 @@ else
                 <th>Job</th>
                 <th>Tool</th>
                 <th>Value</th>
-                <th>Status</th>
+                <th>Measurement status</th>
                 <th>Measured at</th>
                 <th class="text-center">Actions</th>
             </tr>
@@ -50,7 +50,7 @@ else
         <tbody>
             @foreach (var measurement in _measurements)
             {
-                <tr>
+                <tr class="align-middle">
                     <td>@measurement.JobNumber</td>
                     <td>
                         @measurement.ToolName - @measurement.ToolSerialNumber
