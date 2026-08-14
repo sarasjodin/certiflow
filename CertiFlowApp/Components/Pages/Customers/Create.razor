@@ -1,5 +1,6 @@
 ﻿@page "/customers/create"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Customers
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "InternalUser")]
@@ -60,6 +61,7 @@
 
 @code {
     private readonly CreateCustomerForm _form = new();
+    private readonly CancellationTokenSource _componentCts = new();
     private bool _isSaving;
     private string? _errorMessage;
 
@@ -70,10 +72,17 @@
 
         try
         {
-            var customer = await CustomerService.CreateAsync(_form);
+            var customer = await CustomerService.CreateAsync(
+                _form,
+                _componentCts.Token);
 
             NavigationManager.NavigateTo(
                 $"/customers/{customer.Id}");
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         catch (InvalidOperationException exception)
         {
@@ -85,7 +94,16 @@
         }
         finally
         {
-            _isSaving = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isSaving = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }

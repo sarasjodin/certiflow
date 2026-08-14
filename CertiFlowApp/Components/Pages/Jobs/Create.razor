@@ -1,5 +1,6 @@
 ﻿@page "/jobs/create"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Customers
 @using CertiFlowApp.Features.Jobs
 @using CertiFlowApp.Models
@@ -123,16 +124,24 @@ else
 
 @code {
     private readonly CreateJobForm _form = new();
+    private List<Customer> _customers = [];
+    private readonly CancellationTokenSource _componentCts = new();
     private bool _isSaving;
     private string? _errorMessage;
-    private List<Customer> _customers = [];
-    private bool _isLoading = true;
+    private bool _isLoading;
 
     protected override async Task OnInitializedAsync()
     {
+        _isLoading = true;
+
         try
         {
-            _customers = await CustomerService.GetAllAsync();
+            _customers = await CustomerService.GetAllAsync(_componentCts.Token);
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected when the component is disposed.
         }
         catch (Exception)
         {
@@ -140,7 +149,10 @@ else
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
     }
 
@@ -151,10 +163,17 @@ else
 
         try
         {
-            var job = await JobService.CreateAsync(_form);
+            var job = await JobService.CreateAsync(
+                _form,
+                _componentCts.Token);
 
             NavigationManager.NavigateTo(
                 $"/jobs/{job.Id}");
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         catch (InvalidOperationException exception)
         {
@@ -166,8 +185,18 @@ else
         }
         finally
         {
-            _isSaving = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isSaving = false;
+            }
         }
+
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }
 

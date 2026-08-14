@@ -1,5 +1,6 @@
 ﻿@page "/jobs/{Id:guid}"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Jobs
 @using CertiFlowApp.Services.DateTime
 @using Microsoft.AspNetCore.Authorization
@@ -108,9 +109,9 @@ else
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
-
+    public Guid Id { get; set; } // Receives the job ID from the URL route
     private JobDetailsModel? _job; // Job details model to hold the job information
+    private readonly CancellationTokenSource _componentCts = new();
     private bool _isLoading = true;
 
     protected override async Task OnParametersSetAsync()
@@ -119,11 +120,27 @@ else
 
         try
         {
-            _job = await JobService.GetByIdAsync(Id);
+            _job = await JobService.GetByIdAsync(
+                Id,
+                _componentCts.Token);
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }

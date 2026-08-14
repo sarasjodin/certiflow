@@ -1,5 +1,6 @@
 ﻿@page "/tools"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Tools
 @using CertiFlowApp.Services.DateTime
 @using CertiFlowApp.Models.Enums
@@ -105,23 +106,41 @@
 
 @code {
     private List<ToolListItem> _tools = [];
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
     private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        _isLoading = true;
+        _errorMessage = null;
+
         try
         {
-            _tools = await ToolService.GetAllAsync();
+            _tools = await ToolService.GetAllAsync(_componentCts.Token);
+        }
+        catch (OperationCanceledException)
+           when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed.
         }
         catch (Exception)
         {
+            
             _errorMessage = "The tools could not be loaded.";
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
     }
 
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
+    }
 }

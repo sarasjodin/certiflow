@@ -1,5 +1,6 @@
 ﻿@page "/customers/{Id:guid}"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Customers
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "InternalUser")]
@@ -74,10 +75,10 @@ else
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
-
+    public Guid Id { get; set; } // Receives the customer ID from the URL route
     private CustomerDetailsModel? _customer; // Customer details model to hold the customer information
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -85,11 +86,27 @@ else
 
         try
         {
-            _customer = await CustomerService.GetByIdAsync(Id);
+            _customer = await CustomerService.GetByIdAsync(
+                Id,
+                _componentCts.Token);
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed.
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }

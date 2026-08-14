@@ -1,5 +1,6 @@
 ﻿@page "/customers/{Id:guid}/delete"
 @rendermode InteractiveServer
+@implements IDisposable
 @using CertiFlowApp.Features.Customers
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "InternalUser")]
@@ -74,11 +75,11 @@ else
 }
 
 @code {
-    [Parameter]
-    public Guid Id { get; set; }
-
+    [Parameter] 
+    public Guid Id { get; set; } // Receives the customer ID from the URL route
     private CustomerDetailsModel? _customer; // Customer details model to hold the customer information
-    private bool _isLoading = true;
+    private readonly CancellationTokenSource _componentCts = new();
+    private bool _isLoading;
     private bool _isDeleting;
     private string? _errorMessage;
 
@@ -88,11 +89,21 @@ else
 
         try
         {
-            _customer = await CustomerService.GetByIdAsync(Id);
+            _customer = await CustomerService.GetByIdAsync(
+                Id,
+                _componentCts.Token);
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected cancellation when the component is disposed.
         }
         finally
         {
-            _isLoading = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isLoading = false;
+            }
         }
     }
 
@@ -103,7 +114,9 @@ else
 
         try
         {
-            var deleted = await CustomerService.DeleteAsync(Id);
+            var deleted = await CustomerService.DeleteAsync(
+                Id,
+                _componentCts.Token);
 
             if (!deleted)
             {
@@ -112,6 +125,11 @@ else
             }
 
             NavigationManager.NavigateTo("/customers");
+        }
+        catch (OperationCanceledException)
+            when (_componentCts.IsCancellationRequested)
+        {
+            // Expected when the component is disposed
         }
         catch (InvalidOperationException exception)
         {
@@ -123,7 +141,16 @@ else
         }
         finally
         {
-            _isDeleting = false;
+            if (!_componentCts.IsCancellationRequested)
+            {
+                _isDeleting = false;
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        _componentCts.Cancel();
+        _componentCts.Dispose();
     }
 }
