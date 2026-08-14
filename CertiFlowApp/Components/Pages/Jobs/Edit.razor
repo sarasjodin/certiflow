@@ -36,69 +36,70 @@ else
         </div>
     }
 
-    <EditForm Model="_form"
-              OnValidSubmit="UpdateJobAsync"
-              FormName="edit-job">
+    <div class="form-container">
+        <EditForm Model="_form"
+                  OnValidSubmit="UpdateJobAsync"
+                  FormName="edit-job">
 
-    <DataAnnotationsValidator />
+        <DataAnnotationsValidator />
+                    <div class="mb-3">
+                        <label class="form-label">Customer</label>
+                        <div class="form-control-plaintext">
+                            @_form.CustomerName
+                        </div>
+                    </div>
 
-        <div class="mb-3">
-            <label class="form-label">Customer</label>
-            <div class="form-control-plaintext">
-                @_form.CustomerName
-            </div>
-        </div>
+                    <div class="mb-3">
+                        <label for="job-number" class="form-label">
+                            Job number
+                        </label>
 
-        <div class="mb-3">
-            <label for="job-number" class="form-label">
-                Job number
-            </label>
+                        <InputText id="job-number"
+                                    class="form-control"
+                                    @bind-Value="_form.JobNumber" />
 
-            <InputText id="job-number"
-                        class="form-control"
-                        @bind-Value="_form.JobNumber" />
+                        <ValidationMessage For="() => _form.JobNumber" />
+                    </div>
 
-            <ValidationMessage For="() => _form.JobNumber" />
-        </div>
+                    <div class="mb-3">
+                        <label for="job-title" class="form-label">
+                            Title
+                        </label>
 
-        <div class="mb-3">
-            <label for="job-title" class="form-label">
-                Title
-            </label>
+                        <InputText id="job-title"
+                                    class="form-control"
+                                    @bind-Value="_form.Title" />
 
-            <InputText id="job-title"
-                        class="form-control"
-                        @bind-Value="_form.Title" />
+                        <ValidationMessage For="() => _form.Title" />
+                    </div>
 
-            <ValidationMessage For="() => _form.Title" />
-        </div>
+                    <div class="mb-3">
+                        <label for="job-description" class="form-label">
+                            Description
+                        </label>
 
-        <div class="mb-3">
-            <label for="job-description" class="form-label">
-                Description
-            </label>
+                        <InputTextArea id="job-description"
+                                        class="form-control"
+                                        @bind-Value="_form.Description" />
 
-            <InputTextArea id="job-description"
-                            class="form-control"
-                            @bind-Value="_form.Description" />
+                        <ValidationMessage For="() => _form.Description" />
+                    </div>
 
-            <ValidationMessage For="() => _form.Description" />
-        </div>
+                    <div class="d-flex gap-2">
 
-        <div class="d-flex gap-2">
+                        <button type="submit"
+                                class="btn btn-primary"
+                                disabled="@_isSaving">
+                            @(_isSaving ? "Saving..." : "Save changes")
+                        </button>
 
-            <button type="submit"
-                    class="btn btn-primary"
-                    disabled="@_isSaving">
-                @(_isSaving ? "Saving..." : "Save changes")
-            </button>
-
-            <a class="btn btn-secondary"
-               href="@($"/jobs/{Id}")">
-                Cancel
-            </a>
-        </div>
-    </EditForm>
+                        <a class="btn btn-secondary"
+                           href="@($"/jobs/{Id}")">
+                            Cancel
+                        </a>
+                </div>
+        </EditForm>
+    </div>
 }
 
 @code {

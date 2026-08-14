@@ -34,52 +34,54 @@ else
         </div>
     }
 
-    <EditForm Model="_form"
-              OnValidSubmit="UpdateCustomerAsync"
-              FormName="edit-customer">
+    <div class="form-container">
+        <EditForm Model="_form"
+                  OnValidSubmit="UpdateCustomerAsync"
+                  FormName="edit-customer">
 
-        <DataAnnotationsValidator />
+            <DataAnnotationsValidator />
 
-        <div class="mb-3">
-            <label for="customer-name" class="form-label">
-                Customer name
-            </label>
+            <div class="mb-3">
+                <label for="customer-name" class="form-label">
+                    Customer name
+                </label>
 
-            <InputText id="customer-name"
-                       class="form-control"
-                       @bind-Value="_form.Name" />
+                <InputText id="customer-name"
+                           class="form-control"
+                           @bind-Value="_form.Name" />
 
-            <ValidationMessage For="() => _form.Name" />
-        </div>
+                <ValidationMessage For="() => _form.Name" />
+            </div>
 
-        <div class="mb-3">
-            <label for="organization-number" class="form-label">
-                Organization number
-            </label>
+            <div class="mb-3">
+                <label for="organization-number" class="form-label">
+                    Organization number
+                </label>
 
-            <InputText id="organization-number"
-                       class="form-control"
-                       @bind-Value="_form.OrganizationNumber" />
+                <InputText id="organization-number"
+                           class="form-control"
+                           @bind-Value="_form.OrganizationNumber" />
 
-            <ValidationMessage For="() => _form.OrganizationNumber" />
-        </div>
+                <ValidationMessage For="() => _form.OrganizationNumber" />
+            </div>
 
-        <div class="d-flex gap-2">
+            <div class="d-flex gap-2">
 
 
-            <button type="submit"
-                    class="btn btn-primary"
-                    disabled="@_isSaving">
-                @(_isSaving ? "Saving..." : "Save changes")
-            </button>
+                <button type="submit"
+                        class="btn btn-primary"
+                        disabled="@_isSaving">
+                    @(_isSaving ? "Saving..." : "Save changes")
+                </button>
 
-            <a class="btn btn-secondary"
-               href="@($"/customers/{Id}")">
-                Cancel
-            </a>
+                <a class="btn btn-secondary"
+                   href="@($"/customers/{Id}")">
+                    Cancel
+                </a>
 
-        </div>
-    </EditForm>
+            </div>
+        </EditForm>
+    </div>
 }
 
 @code {
