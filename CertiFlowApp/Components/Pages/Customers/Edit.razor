@@ -9,9 +9,21 @@
 
 <PageTitle>Edit customer</PageTitle>
 
+<h1>Edit customer</h1>
+
 @if (_isLoading)
 {
     <p>Loading customer...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage) && _form is null)
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+
+    <a class="btn btn-secondary" href="/customers">
+        Back to customers
+    </a>
 }
 else if (_form is null)
 {
@@ -25,8 +37,6 @@ else if (_form is null)
 }
 else
 {
-    <h1>Edit customer</h1>
-
     @if (!string.IsNullOrWhiteSpace(_errorMessage))
     {
         <div class="alert alert-danger" role="alert">
@@ -95,27 +105,33 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        _isLoading = true;
+            _isLoading = true;
+            _errorMessage = null;
+            _form = null;
 
         try
         {
             _form = await CustomerService.GetEditFormAsync(
                 Id,
                 _componentCts.Token);
-        }
+            }
         catch (OperationCanceledException)
             when (_componentCts.IsCancellationRequested)
         {
             // Expected cancellation when the component is disposed.
         }
+        catch (Exception)
+        {
+            _errorMessage = "The customer could not be loaded.";
+        }
         finally
         {
-            if (!_componentCts.IsCancellationRequested)
-            {
-                _isLoading = false;
-            }
+        if (!_componentCts.IsCancellationRequested)
+        {
+            _isLoading = false;
         }
     }
+}
 
     private async Task UpdateCustomerAsync()
     {

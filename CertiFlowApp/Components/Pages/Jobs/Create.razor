@@ -14,20 +14,18 @@
 
 <h1>Create job</h1>
 
-@if (!string.IsNullOrWhiteSpace(_errorMessage))
-{
-    <div class="alert alert-danger" role="alert">
-        @_errorMessage
-    </div>
-}
-
 @if (_isLoading)
 {
     <div class="alert alert-info" role="alert">
         Loading customers...
     </div>
 }
-
+else if (!string.IsNullOrWhiteSpace(_errorMessage) && _customers.Count == 0)
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
 else if (_customers.Count == 0)
 {
     <div class="alert alert-info" role="alert">
@@ -44,82 +42,88 @@ else if (_customers.Count == 0)
 }
 else
 {
-<div class="form-container">
-    <EditForm Model="_form"
-              OnValidSubmit="CreateJobAsync"
-              FormName="create-job">
-
-        <DataAnnotationsValidator />
-
-        <div class="mb-3">
-            <label for="customer" class="form-label">
-                Customer
-            </label>
-
-            <InputSelect id="customer"
-                         class="form-select"
-                         @bind-Value="_form.CustomerId">
-
-                <option value="">Select customer</option>
-
-                @foreach (var customer in _customers)
-                {
-                    <option value="@customer.Id">
-                        @customer.Name
-                    </option>
-                }
-            </InputSelect>
-
-            <ValidationMessage For="() => _form.CustomerId" />
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
         </div>
+    }
+    <div class="form-container">
+        <EditForm Model="_form"
+                  OnValidSubmit="CreateJobAsync"
+                  FormName="create-job">
 
-        <div class="mb-3">
-            <label for="job-number" class="form-label">
-                Job number
-            </label>
+            <DataAnnotationsValidator />
 
-            <InputText id="job-number"
-                       class="form-control"
-                       @bind-Value="_form.JobNumber" />
+            <div class="mb-3">
+                <label for="customer" class="form-label">
+                    Customer
+                </label>
 
-            <ValidationMessage For="() => _form.JobNumber" />
-        </div>
+                <InputSelect id="customer"
+                             class="form-select"
+                             @bind-Value="_form.CustomerId">
 
-        <div class="mb-3">
-            <label for="job-title" class="form-label">
-                Title
-            </label>
+                    <option value="">Select customer</option>
 
-            <InputText id="job-title"
-                       class="form-control"
-                       @bind-Value="_form.Title" />
+                    @foreach (var customer in _customers)
+                    {
+                        <option value="@customer.Id">
+                            @customer.Name
+                        </option>
+                    }
+                </InputSelect>
 
-            <ValidationMessage For="() => _form.Title" />
-        </div>
+                <ValidationMessage For="() => _form.CustomerId" />
+            </div>
 
-        <div class="mb-3">
-            <label for="job-description" class="form-label">
-                Description
-            </label>
+            <div class="mb-3">
+                <label for="job-number" class="form-label">
+                    Job number
+                </label>
 
-            <InputTextArea id="job-description"
+                <InputText id="job-number"
                            class="form-control"
-                           @bind-Value="_form.Description" />
+                           @bind-Value="_form.JobNumber" />
 
-            <ValidationMessage For="() => _form.Description" />
-        </div>
+                <ValidationMessage For="() => _form.JobNumber" />
+            </div>
 
-        <button type="submit"
-                class="btn btn-primary"
-                disabled="@_isSaving">
-            @(_isSaving ? "Saving..." : "Create")
-        </button>
+            <div class="mb-3">
+                <label for="job-title" class="form-label">
+                    Title
+                </label>
 
-        <a class="btn btn-secondary" href="/jobs">
-            Cancel
-        </a>
-    </EditForm>
-</div>
+                <InputText id="job-title"
+                           class="form-control"
+                           @bind-Value="_form.Title" />
+
+                <ValidationMessage For="() => _form.Title" />
+            </div>
+
+            <div class="mb-3">
+                <label for="job-description" class="form-label">
+                    Description
+                </label>
+
+                <InputTextArea id="job-description"
+                               class="form-control"
+                               @bind-Value="_form.Description" />
+
+                <ValidationMessage For="() => _form.Description" />
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary"
+                    disabled="@_isSaving">
+                @(_isSaving ? "Saving..." : "Create")
+            </button>
+
+            <a class="btn btn-secondary" href="/jobs">
+                Cancel
+            </a>
+        </EditForm>
+    </div>
 }
 
 @code {
@@ -132,7 +136,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _isLoading = true;
+        _isLoading = true; // Customers are being loaded
+        _errorMessage = null;
 
         try
         {
@@ -158,7 +163,7 @@ else
 
     private async Task CreateJobAsync()
     {
-        _isSaving = true;
+        _isSaving = true; // Job is being created
         _errorMessage = null;
 
         try

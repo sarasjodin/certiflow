@@ -8,6 +8,7 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>Edit tool</PageTitle>
+<h1>Edit tool</h1>
 
 @if (_isLoading)
 {
@@ -25,8 +26,6 @@ else if (_form is null)
 }
 else
 {
-    <h1>Edit tool</h1>
-
     @if (!string.IsNullOrWhiteSpace(_errorMessage))
     {
         <div class="alert alert-danger" role="alert">
