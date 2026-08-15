@@ -53,6 +53,7 @@ else
     }
     else
     {
+    <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr class="align-middle">
@@ -73,13 +74,15 @@ else
                         <td>@job.Title</td>
                         <td>
                             <a href="@($"/customers/{job.CustomerId}/jobs")"
-                               class="d-block text-decoration-none">
-                                @job.CustomerName
+                               class="text-decoration-none"
+                               aria-label="@($"View jobs for {job.CustomerName}")">
+                                @job.CustomerName <span aria-hidden="true">›</span>
                             </a>
                         </td>
                         <td class="p-0 text-center">
                             <a href="@($"/jobs/{job.Id}/measurements")"
-                                class="d-block p-3 text-decoration-none">
+                               class="d-block p-3 text-decoration-none"
+                               aria-label="@($"View {job.MeasurementCount} measurements for {job.JobNumber}")">
                                 @job.MeasurementCount
                             </a>
                         </td>
@@ -101,6 +104,7 @@ else
                 }
             </tbody>
         </table>
+    </div>
     }
 }
 

@@ -8,7 +8,7 @@
 @inject JobService JobService
 @inject CustomerService CustomerService
 
-<PageTitle>Customer jobs</PageTitle>
+<PageTitle>@(_customer is null ? "Customer jobs" : $"{_customer.Name} jobs")</PageTitle>
 
 @if (_isLoading)
 {
@@ -32,11 +32,15 @@ else if (_customer is null)
 }
 else
 {
-    <h1>Jobs</h1>
+    <h1>@_customer.Name jobs</h1>
 
-    <p>
-        Customer: <strong>@_customer.OrganizationNumber - @_customer.Name</strong><br />
-    </p>
+    <dl class="row">
+        <dt class="col-sm-3">Customer</dt>
+        <dd class="col-sm-9">@_customer.Name</dd>
+
+        <dt class="col-sm-3">Organization number</dt>
+        <dd class="col-sm-9">@_customer.OrganizationNumber</dd>
+    </dl>
 
     @if (_jobs.Count == 0)
     {
@@ -46,6 +50,7 @@ else
     }
     else
     {
+    <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -70,7 +75,8 @@ else
 
                         <td class="p-0 text-center">
                             <a href="@($"/jobs/{job.Id}/measurements")"
-                                class="d-block p-3 text-decoration-none">
+                                class="d-block p-3 text-decoration-none"
+                                aria-label="@($"View {job.MeasurementCount} measurements for {job.JobNumber}")">
                                 @job.MeasurementCount
                             </a>
                         </td>
@@ -78,7 +84,7 @@ else
                         <td>
                             <div class="d-flex justify-content-center gap-2">
                                 <a class="btn btn-sm btn-outline-primary"
-                                   href="@($"/jobs/{job.Id}")">
+                                    href="@($"/jobs/{job.Id}")">
                                     View
                                 </a>
                             </div>
@@ -87,6 +93,7 @@ else
                 }
             </tbody>
         </table>
+    </div>
     }
 
     <div class="d-flex gap-2">

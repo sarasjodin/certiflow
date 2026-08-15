@@ -1,15 +1,15 @@
-﻿@page "/jobs/{JobId:guid}/measurements"
+﻿@page "/tools/{ToolId:guid}/measurements"
 @rendermode InteractiveServer
 @implements IDisposable
-@using CertiFlowApp.Features.Jobs
+@using CertiFlowApp.Features.Tools
 @using CertiFlowApp.Features.Measurements
 @using CertiFlowApp.Services.DateTime
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "InternalUser")]
-@inject JobService JobService
+@inject ToolService ToolService
 @inject MeasurementService MeasurementService
 
-<PageTitle>@(_job is null ? "Job measurements" : $"{_job.JobNumber} measurements")</PageTitle>
+<PageTitle>@(_tool is null ? "Tool measurements" : $"{_tool.SerialNumber} measurements")</PageTitle>
 
 @if (_isLoading)
 {
@@ -21,35 +21,35 @@ else if (!string.IsNullOrWhiteSpace(_errorMessage))
         @_errorMessage
     </div>
 }
-else if (_job is null)
+else if (_tool is null)
 {
     <div class="alert alert-warning" role="alert">
-        Job not found.
+        Tool not found.
     </div>
 
-    <a class="btn btn-secondary" href="/jobs">
-        Back to jobs
+    <a class="btn btn-secondary" href="/tools">
+        Back to tools
     </a>
 }
 else
 {
-    <h1>@_job.JobNumber measurements</h1>
+    <h1>@_tool.SerialNumber measurements</h1>
 
     <dl class="row">
-        <dt class="col-sm-3">Job number</dt>
-        <dd class="col-sm-9">@_job.JobNumber</dd>
+        <dt class="col-sm-3">Tool</dt>
+        <dd class="col-sm-9">@_tool.Name</dd>
 
-        <dt class="col-sm-3">Title</dt>
-        <dd class="col-sm-9">@_job.Title</dd>
+        <dt class="col-sm-3">Serial number</dt>
+        <dd class="col-sm-9">@_tool.SerialNumber</dd>
 
-        <dt class="col-sm-3">Customer</dt>
-        <dd class="col-sm-9">@_job.CustomerName</dd>
+        <dt class="col-sm-3">Tool type</dt>
+        <dd class="col-sm-9">@_tool.ToolType</dd>
     </dl>
 
     @if (_measurements.Count == 0)
     {
         <div class="alert alert-info" role="alert">
-            No measurements have been registered for this job.
+            No measurements have been registered for this tool.
         </div>
     }
     else
@@ -58,9 +58,10 @@ else
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th>Job</th>
+                    <th>Customer</th>
                     <th>Value</th>
-                    <th>Tool</th>
-                    <th>Status</th>
+                    <th>Measurement status</th>
                     <th>Measured at</th>
                     <th class="text-center">Actions</th>
                 </tr>
@@ -70,12 +71,20 @@ else
                 @foreach (var measurement in _measurements)
                 {
                     <tr>
-                        <td>@measurement.Value @measurement.Unit</td>
-
                         <td>
-                            @measurement.ToolName
-                            (@measurement.ToolSerialNumber)
+                            <a href="@($"/jobs/{measurement.JobId}")"
+                               class="text-decoration-none">
+                                @measurement.JobNumber
+                            </a>
                         </td>
+                        <td>
+                            <a href="@($"/customers/{measurement.CustomerId}/jobs")"
+                               class="text-decoration-none"
+                               aria-label="@($"View jobs for {measurement.CustomerName}")">
+                                @measurement.CustomerName <span aria-hidden="true">›</span>
+                            </a>
+                        </td>
+                        <td>@measurement.Value @measurement.Unit</td>
 
                         <td>@measurement.Status</td>
 
@@ -100,21 +109,22 @@ else
 
     <div class="d-flex gap-2">
 
-        <a class="btn btn-primary"
-           href="@($"/measurements/create?jobId={_job.Id}")">
+        @* To be implemented: Add measurement functionality. For now, the button is disabled. *@
+        <span class="btn btn-secondary disabled"
+              aria-disabled="true">
             Add measurement
-        </a>
+        </span>
 
-        <a class="btn btn-secondary" href="/quality/dashboard">
-            Back to Quality Dashboard
+        <a class="btn btn-secondary" href="/tools">
+            Back to tools
         </a>
     </div>
 }
 
 @code {
     [Parameter]
-    public Guid JobId { get; set; }
-    private JobDetailsModel? _job;
+    public Guid ToolId { get; set; } // Receives the tool ID from the URL route
+    private ToolDetailsModel? _tool;
     private List<MeasurementListItem> _measurements = [];
     private readonly CancellationTokenSource _componentCts = new();
     private bool _isLoading;
@@ -127,12 +137,12 @@ else
 
         try
         {
-            _job = await JobService.GetByIdAsync(JobId, _componentCts.Token);
+            _tool = await ToolService.GetByIdAsync(ToolId, _componentCts.Token);
 
-            if (_job is not null)
+            if (_tool is not null)
             {
                 _measurements =
-                    await MeasurementService.GetByJobIdAsync(JobId, _componentCts.Token);
+                    await MeasurementService.GetByToolIdAsync(ToolId, _componentCts.Token);
             }
         }
         catch (OperationCanceledException)

@@ -18,6 +18,12 @@ public sealed class MeasurementListItem
 
     public string Unit { get; init; } = string.Empty;
 
+    public Guid JobId { get; init; }
+
+    public Guid CustomerId { get; init; }
+
+    public string CustomerName { get; init; } = string.Empty;
+
     public MeasurementStatus Status { get; init; }
 
     public DateTimeOffset MeasuredAtUtc { get; init; }

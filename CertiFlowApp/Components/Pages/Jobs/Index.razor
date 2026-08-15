@@ -34,12 +34,14 @@ else if (_jobs.Count == 0)
 }
 else
 {
+<div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Job number</th>
                 <th>Title</th>
                 <th>Customer</th>
+                <th>Measurements</th>
                 <th>Job status</th>
                 <th class="text-center">Actions</th>
             </tr>
@@ -51,7 +53,20 @@ else
                 <tr class="align-middle">
                     <td>@job.JobNumber</td>
                     <td>@job.Title</td>
-                    <td>@job.CustomerName</td>
+                    <td>
+                        <a href="@($"/customers/{job.CustomerId}/jobs")"
+                            class="text-decoration-none"
+                            aria-label="@($"View jobs for {job.CustomerName}")">
+                            @job.CustomerName <span aria-hidden="true">›</span>
+                        </a>
+                    </td>
+                    <td class="p-0 text-center">
+                        <a href="@($"/jobs/{job.Id}/measurements")"
+                            class="d-block p-3 text-decoration-none"
+                            aria-label="@($"View {job.MeasurementCount} measurements for {job.JobNumber}")">
+                            @job.MeasurementCount
+                        </a>
+                    </td>
                     <td>@job.Status</td>
                     <td>
                         <div class="d-flex justify-content-center gap-2">
@@ -75,6 +90,7 @@ else
             }
         </tbody>
     </table>
+</div>
 }
 
 @code {
