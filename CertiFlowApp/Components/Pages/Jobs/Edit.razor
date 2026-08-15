@@ -11,6 +11,8 @@
 
 <PageTitle>Edit job</PageTitle>
 
+<h1>Edit job</h1>
+
 @if (_isLoading)
 {
     <p>Loading job...</p>
@@ -27,8 +29,6 @@ else if (_form is null)
 }
 else
 {
-    <h1>Edit job</h1>
-
     @if (!string.IsNullOrWhiteSpace(_errorMessage))
     {
         <div class="alert alert-danger" role="alert">
@@ -42,62 +42,66 @@ else
                   FormName="edit-job">
 
         <DataAnnotationsValidator />
-                    <div class="mb-3">
-                        <label class="form-label">Customer</label>
-                        <div class="form-control-plaintext">
-                            @_form.CustomerName
-                        </div>
-                    </div>
+            <div class="mb-3">
+                <label for="job-customer" class="form-label">
+                    Customer
+                </label>
 
-                    <div class="mb-3">
-                        <label for="job-number" class="form-label">
-                            Job number
-                        </label>
+                <input id="job-customer"
+                       class="form-control"
+                       value="@_form.CustomerName"
+                       readonly />
+            </div>
 
-                        <InputText id="job-number"
-                                    class="form-control"
-                                    @bind-Value="_form.JobNumber" />
+            <div class="mb-3">
+                <label for="job-number" class="form-label">
+                    Job number
+                </label>
 
-                        <ValidationMessage For="() => _form.JobNumber" />
-                    </div>
+                <InputText id="job-number"
+                            class="form-control"
+                            @bind-Value="_form.JobNumber" />
 
-                    <div class="mb-3">
-                        <label for="job-title" class="form-label">
-                            Title
-                        </label>
+                <ValidationMessage For="() => _form.JobNumber" />
+            </div>
 
-                        <InputText id="job-title"
-                                    class="form-control"
-                                    @bind-Value="_form.Title" />
+            <div class="mb-3">
+                <label for="job-title" class="form-label">
+                    Title
+                </label>
 
-                        <ValidationMessage For="() => _form.Title" />
-                    </div>
+                <InputText id="job-title"
+                            class="form-control"
+                            @bind-Value="_form.Title" />
 
-                    <div class="mb-3">
-                        <label for="job-description" class="form-label">
-                            Description
-                        </label>
+                <ValidationMessage For="() => _form.Title" />
+            </div>
 
-                        <InputTextArea id="job-description"
-                                        class="form-control"
-                                        @bind-Value="_form.Description" />
+            <div class="mb-3">
+                <label for="job-description" class="form-label">
+                    Description
+                </label>
 
-                        <ValidationMessage For="() => _form.Description" />
-                    </div>
+                <InputTextArea id="job-description"
+                                class="form-control"
+                                @bind-Value="_form.Description" />
 
-                    <div class="d-flex gap-2">
+                <ValidationMessage For="() => _form.Description" />
+            </div>
 
-                        <button type="submit"
-                                class="btn btn-primary"
-                                disabled="@_isSaving">
-                            @(_isSaving ? "Saving..." : "Save changes")
-                        </button>
+            <div class="d-flex gap-2">
 
-                        <a class="btn btn-secondary"
-                           href="@($"/jobs/{Id}")">
-                            Cancel
-                        </a>
-                </div>
+                <button type="submit"
+                        class="btn btn-primary"
+                        disabled="@_isSaving">
+                    @(_isSaving ? "Saving..." : "Save changes")
+                </button>
+
+                <a class="btn btn-secondary"
+                    href="@($"/jobs/{Id}")">
+                    Cancel
+                </a>
+        </div>
         </EditForm>
     </div>
 }

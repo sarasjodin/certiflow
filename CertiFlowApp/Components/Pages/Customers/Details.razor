@@ -11,17 +11,24 @@
 
 @if (_isLoading)
 {
+    <h1>Customer details</h1>
     <p>Loading customer...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <h1>Customer details</h1>
+
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
 }
 else if (_customer is null)
 {
+    <h1>Customer details</h1>
+
     <div class="alert alert-warning" role="alert">
         Customer not found.
     </div>
-
-    <a class="btn btn-secondary" href="/customers">
-        Back to customers
-    </a>
 }
 else
 {
@@ -56,14 +63,14 @@ else
     </dl>
 
     <div class="d-flex gap-2">
-        <a class="btn btn-primary"
+        <a class="btn btn-outline-secondary"
            href="@($"/customers/{_customer.Id}/edit")">
-            Edit
+            Edit customer
         </a>
 
-        <a class="btn btn-danger"
+        <a class="btn btn-outline-danger"
            href="@($"/customers/{_customer.Id}/delete")">
-            Delete
+            Delete customer
         </a>
 
         <a class="btn btn-secondary" href="/customers">
@@ -78,10 +85,13 @@ else
     private CustomerDetailsModel? _customer; // Customer details model to hold the customer information
     private readonly CancellationTokenSource _componentCts = new();
     private bool _isLoading;
+    private string? _errorMessage;
 
     protected override async Task OnParametersSetAsync()
     {
         _isLoading = true;
+        _errorMessage = null;
+        _customer = null;
 
         try
         {
@@ -94,14 +104,18 @@ else
         {
             // Expected cancellation when the component is disposed.
         }
+        catch (Exception)
+        {
+            _errorMessage = "The customer could not be loaded.";
+        }
         finally
         {
-            if (!_componentCts.IsCancellationRequested)
-            {
-                _isLoading = false;
-            }
+        if (!_componentCts.IsCancellationRequested)
+        {
+            _isLoading = false;
         }
     }
+}
 
     public void Dispose()
     {

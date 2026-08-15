@@ -9,9 +9,21 @@
 
 <PageTitle>Delete customer</PageTitle>
 
+<h1>Delete customer</h1>
+
 @if (_isLoading)
 {
     <p>Loading customer...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage) && _customer is null)
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+
+    <a class="btn btn-secondary" href="/customers">
+        Back to customers
+    </a>
 }
 else if (_customer is null)
 {
@@ -25,8 +37,6 @@ else if (_customer is null)
 }
 else
 {
-    <h1>Delete customer</h1>
-
     @if (!string.IsNullOrWhiteSpace(_errorMessage))
     {
         <div class="alert alert-danger" role="alert">
@@ -36,7 +46,7 @@ else
 
     @if (_customer.JobCount > 0)
     {
-        <div class="alert alert-info" role="alert">
+        <div class="alert alert-warning" role="alert">
             This customer cannot be deleted because it has related jobs.
         </div>
     }
@@ -46,32 +56,34 @@ else
             Are you sure you want to delete this customer?
         </div>
     }
-<dl class="row">
-    <dt class="col-sm-3">Customer</dt>
-    <dd class="col-sm-9">@_customer.Name</dd>
 
-    <dt class="col-sm-3">Organization number</dt>
-    <dd class="col-sm-9">@_customer.OrganizationNumber</dd>
+    <dl class="row">
+        <dt class="col-sm-3">Customer</dt>
+        <dd class="col-sm-9">@_customer.Name</dd>
 
-    <dt class="col-sm-3">Related jobs</dt>
-    <dd class="col-sm-9">@_customer.JobCount</dd>
-</dl>
+        <dt class="col-sm-3">Organization number</dt>
+        <dd class="col-sm-9">@_customer.OrganizationNumber</dd>
 
-<div class="d-flex gap-2">
-    @if (_customer.JobCount == 0)
-    {
-        <button type="button"
-            class="btn btn-danger"
-            disabled="@(_isDeleting || _customer.JobCount > 0)"
-            @onclick="DeleteCustomerAsync">
-            @(_isDeleting ? "Deleting..." : "Delete")
-        </button>
-    }
-    <a class="btn btn-secondary"
-        href="@($"/customers/{Id}")">
-        Cancel
-    </a>
-</div>
+        <dt class="col-sm-3">Related jobs</dt>
+        <dd class="col-sm-9">@_customer.JobCount</dd>
+    </dl>
+
+    <div class="d-flex gap-2">
+        @if (_customer.JobCount == 0)
+        {
+            <button type="button"
+                class="btn btn-danger"
+                disabled="@_isDeleting"
+                @onclick="DeleteCustomerAsync">
+                @(_isDeleting ? "Deleting..." : "Delete")
+            </button>
+        }
+
+        <a class="btn btn-secondary"
+            href="@($"/customers/{Id}")">
+            Cancel
+        </a>
+    </div>
 }
 
 @code {
@@ -85,7 +97,9 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        _isLoading = true;
+        _isLoading = true; // Customer is loading
+        _errorMessage = null;
+        _customer = null;
 
         try
         {
@@ -98,14 +112,18 @@ else
         {
             // Expected cancellation when the component is disposed.
         }
+        catch (Exception)
+        {
+            _errorMessage = "The customer could not be loaded.";
+        }
         finally
         {
-            if (!_componentCts.IsCancellationRequested)
-            {
-                _isLoading = false;
-            }
+        if (!_componentCts.IsCancellationRequested)
+        {
+            _isLoading = false;
         }
     }
+}
 
     private async Task DeleteCustomerAsync()
     {
