@@ -21,6 +21,25 @@ This project adheres to Semantic Versioning.
 
 ---
 
+## [0.8.0] - 2026-08-15
+
+### Added
+
+- Tool-specific measurement view
+- Navigation from tools to related measurements
+- Navigation icons using embedded SVG data URIs
+
+### Changed
+
+- Improved navigation between customers, jobs, tools and measurements
+- Improved Quality Dashboard navigation
+- Improved CRUD page feedback and error handling
+- Improved responsive table layouts
+- Improved form and button layout
+- Improved accessibility for links and repeated actions
+
+---
+
 ## [0.7.0] - 2026-08-13
 
 ### Added
