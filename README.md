@@ -1,4 +1,10 @@
-# CertiFlow Infrastructure
+# CertiFlow
+
+<img width="700" height="auto" alt="image" src="https://github.com/user-attachments/assets/1f3cda43-8d3b-47a4-bda9-47ab54f80b1d" />
+
+
+**Project description**
+CertiFlow är ett webbaserat kvalitetssystem för industrin, utvecklat i .NET 8 med Blazor Interactive Server, EF Core och PostgreSQL. Systemet hanterar kunder, jobb, verktyg och mätningar med fokus på spårbarhet, autentisering och strukturerad kvalitetsdata.
 
 ## Overview
 
@@ -75,7 +81,15 @@ Production:
 ASPNETCORE_ENVIRONMENT: "Production"
 APP_ENVIRONMENTAL_LABEL: "Production"
 ```
+Local application secrets are stored using .NET User Secrets.
+Environment files and database volumes are not version controlled:
 
+```text
+.env
+.env.dev
+.env.local
+postgres_data/
+postgres_data_dev/
 ---
 
 ## Database environments
@@ -86,44 +100,51 @@ The project uses separate PostgreSQL databases for:
 - VPS Development environment
 - VPS Production environment
 
-### Local database
+### Database
 
 Started via:
 ```bash
-docker compose -f docker-compose.local.yml up -d
+docker compose -f <docker-compose-file> up -d
 ```
 
 Access PostgreSQL:
 ```bash
-docker exec -it certiflow-local-db \
-psql -U certiflow_local_user -d certiflow_local_db
+docker exec -it <db-container-name> \
+psql -U <user-name> -d <database-name>
+```
+---
+
+## Database creation/migrations
+
+CertiFlow uses Entity Framework Core migrations to create and update the PostgreSQL schema.
+Local and Prod migrations are applied manually:
+
+```
+dotnet ef database update
+
 ```
 
-### Development database (VPS)
+while dev migrations has been automated from Program.cs:
 
-Started via:
-```bash
-docker compose -f docker-compose.dev.yml up -d
 ```
-
-Access PostgreSQL:
-```bash
-docker exec -it certiflow-db-dev \
-psql -U <dev_user> -d <dev_database>
+Update VPS development environment
+1. Verify that you are on the develop branch.
 ```
-
-### Production database (VPS)
-
-Started via:
-```bash
-docker compose -f docker-compose.yml up -d
+git branch --show-current
 ```
-Access PostgreSQL:
-```bash
-docker exec -it certiflow-db \
-psql -U <prod_user> -d <prod_database>
+If not already on develop:
 ```
-
+git checkout develop
+```
+2. Pull the latest changes:
+```
+git pull
+```
+3. Enter the SSH key password if prompted.
+4. Rebuild and start the development containers:
+```
+docker compose -f docker-compose.dev.yml up -d --build
+```
 ---
 
 ## Authentication and Identity
@@ -146,39 +167,16 @@ The project still uses ASP.NET Core Identity for password hashing, cookies, lock
 
 ---
 
-## Deployment
-
-### Development
-
-```bash
-git checkout develop
-git pull
-docker compose -f docker-compose.dev.yml up -d --build
-```
-
-### Production
-
-```bash
-git checkout main
-git pull
-docker compose -f docker-compose.yml up -d --build
-```
-
----
-
 ## Run locally
 
-Start PostgreSQL:
-
-```bash
-docker compose -f docker-compose.local.yml up -d
-```
-
+Start Docker Desktop
 Run application:
 
 ```bash
 cd CertiFlowApp
 dotnet run
+
+NB! Local app uses .NET not a Docker container.
 ```
 
 Application runs on:
@@ -205,3 +203,18 @@ Examples:
 postgres_data/
 postgres_data_dev/
 ```
+
+---
+
+## Seed-data
+### Develop + Prod
+docker compose --env-file <env-file> -f <compose-file> exec -T <db-service-name> \
+  psql -U <db-user> -d <database-name> \
+  < ~/apps/certiflow-seed/SeedDevelopmentBase.sql
+
+### Prod
+docker compose --env-file <env-file> -f <compose-file> exec -T <db-service-name> \
+  psql -U <db-user> -d <database-name> \
+  < ~/apps/certiflow-seed/SeedProductionWorkflow.sql
+
+---
